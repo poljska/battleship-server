@@ -1,4 +1,7 @@
 <?php
+use Ramsey\Uuid\Uuid;
+require_once "Exceptions.php";
+
 
 final class Game {
     private $id;              // Internal ID
@@ -8,13 +11,22 @@ final class Game {
     private $player_1_shots;  // Positions targeted by player 1
     private $player_2_ships;  // Positions of all player 2 ships
     private $player_2_shots;  // Positions targeted by player 2
-    private $status;          // Informations about game (complete / turn / finished / ...)
+    private $status;          // Additional data (status / turn / number of players / winner)
 
     function __construct($game_id = NULL) {
         if ($game_id) {  // Existing game
             // TODO
         } else {  // New game
-            // TODO
+            $this->game_id = Uuid::uuid4()->toString();
+            $this->timestamp = time();
+            $this->player_1_ships = '{}';
+            $this->player_1_shots = '[]';
+            $this->player_2_ships = '{}';
+            $this->player_2_shots = '[]';
+            $this->status = array();
+            $this->status['status'] = 'Ongoing';
+            $this->status['turn'] = 'Player1';
+            $this->status['nbPlayers'] = '0';
         }
     }
 
@@ -27,15 +39,46 @@ final class Game {
     }
 
     public function getGame() {
-        // TODO
+        $return = array();
+        $return['game_id'] = $this->game_id;
+        $return['timestamp'] = $this->timestamp;
+        $return['player_1_ships'] = json_decode($this->player_1_ships);
+        $return['player_1_shots'] = json_decode($this->player_1_shots);
+        $return['player_2_ships'] = json_decode($this->player_2_ships);
+        $return['player_2_shots'] = json_decode($this->player_2_shots);
+        $return['status'] = $this->status;
+        return $return;
     }
-    
+
     public function getSummary() {
-        // TODO
+        $return = array();
+        $return['game_id'] = $this->game_id;
+        $return['timestamp'] = $this->timestamp;
+        $return['status'] = $this->status;
+        return $return;
     }
 
     public function getOngoingGame($player) {
-        // TODO
+        $return = array();
+        $return['game_id'] = $this->game_id;
+        $return['timestamp'] = $this->timestamp;
+        $return['status'] = $this->status;
+        switch ($player) {
+            case 'player1':
+                $return['ships'] = $this->json_decode(player_1_ships);
+                $return['shots'] = $this->json_decode(player_1_shots);
+                break;
+
+            case 'player2':
+                $return['ships'] = $this->json_decode(player_2_ships);
+                $return['shots'] = $this->json_decode(player_2_shots);
+                break;
+
+            default:
+                throw new InvalidPlayer($player);
+                break;
+        }
+        return $return;
     }
 
     public function setShips($player, $positions) {
