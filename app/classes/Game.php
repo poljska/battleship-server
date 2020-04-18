@@ -30,6 +30,10 @@ final class Game {
         }
     }
 
+    public function getGameId() {
+        return $this->game_id;
+    }
+
     public function save() {
         // TODO
     }
