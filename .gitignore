@@ -39,3 +39,6 @@ tags
 ### PHP Composer ###
 composer.phar
 /vendor/
+
+### Documentation ###
+doc/
