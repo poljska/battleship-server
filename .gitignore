@@ -1,0 +1,41 @@
+### Windows ###
+[Dd]esktop.ini
+$RECYCLE.BIN/
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+### Linux ###
+*~
+.nfs
+.fuse_hidden*
+.Trash-*
+
+### VS Code ###
+.vscode/*
+.history
+
+### Vim ###
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+Session.vim
+Sessionx.vim
+.netrwhist
+tags
+[._]*.un~
+.vim
+
+### PHP Composer ###
+composer.phar
+/vendor/
