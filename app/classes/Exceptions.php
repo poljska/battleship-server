@@ -13,3 +13,17 @@ class InvalidArguments extends Exception {
         parent::__construct($msg);
     }
 }
+
+class InvalidPosition extends Exception {
+    function __construct($pos) {
+        $msg = '[InvalidPosition]['.$this->getFile().':'.$this->getLine().'] -- '.json_encode($pos);
+        parent::__construct($msg);
+    }
+}
+
+class InvalidTurn extends Exception {
+    function __construct($player) {
+        $msg = '[InvalidTurn]['.$this->getFile().':'.$this->getLine().'] -- '.$player;
+        parent::__construct($msg);
+    }
+}

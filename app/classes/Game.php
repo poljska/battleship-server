@@ -34,6 +34,10 @@ final class Game {
         return $this->game_id;
     }
 
+    public function getTurn() {
+        return $this->status['turn'];
+    }
+
     public function save() {
         // TODO
     }
@@ -63,30 +67,24 @@ final class Game {
     }
 
     public function getOngoingGame($player) {
-        if (!is_string($player)) throw new InvalidArguments($player);
+        if (!Game::isPlayer($player)) throw new InvalidPlayer($player);
         $return = array();
         $return['game_id'] = $this->game_id;
         $return['timestamp'] = $this->timestamp;
         $return['status'] = $this->status;
-        switch ($player) {
-            case 'player1':
-                $return['ships'] = $this->player_1_ships;
-                $return['shots'] = $this->player_1_shots;
-                break;
-
-            case 'player2':
-                $return['ships'] = $this->player_2_ships;
-                $return['shots'] = $this->player_2_shots;
-                break;
-
-            default:
-                throw new InvalidPlayer($player);
-                break;
+        if ($player == 'Player1') {
+            $return['ships'] = $this->player_1_ships;
+            $return['shots'] = $this->player_1_shots;
+        }
+        else {
+            $return['ships'] = $this->player_2_ships;
+            $return['shots'] = $this->player_2_shots;
         }
         return $return;
     }
 
     public function setShips($player, $ships) {
+        if (!Game::isPlayer($player)) throw new InvalidPlayer($player);
         if (!is_array($ships)) throw new InvalidArguments($ships);
         if (count($ships) != 5) throw new InvalidArguments($ships);
         if (!isset($ships['carrier'], $ships['battleship'], $ships['destroyer'],
@@ -99,23 +97,49 @@ final class Game {
             if (!Game::isContinuous($shipPositions)) throw new InvalidArguments($ships);
         }
         if (Game::overlap($ships)) throw new InvalidArguments($ships);
-        switch ($player) {
-            case 'player1':
-                $this->player_1_ships = $ships;
-                break;
-
-            case 'player2':
-                $this->player_2_ships = $ships;
-                break;
-
-            default:
-                throw new InvalidPlayer($player);
-                break;
+        if ($player == 'Player1') {
+            $this->player_1_ships = $ships;
         }
+        else {
+            $this->player_2_ships = $ships;
+        }
+        return TRUE;
     }
 
     public function fire($player, $position) {
-        // TODO
+        if (!Game::isPlayer($player)) throw new InvalidPlayer($player);
+        if (!$this->isTurn($player)) throw new InvalidTurn($player);
+        if (!Game::isPosition($position)) throw new InvalidPosition($position);
+        if ($player == 'Player1') {
+            $hit = Game::inArrayDepth2($position, $this->player_2_ships);
+            array_push($this->player_1_shots, array($position, $hit));
+        }
+        else {
+            $hit = Game::inArrayDepth2($position, $this->player_1_ships);
+            array_push($this->player_2_shots, array($position, $hit));
+        }
+        $this->nextTurn();
+        return $hit;
+    }
+
+    private function isTurn($player) {
+        if (!Game::isPlayer($player)) return FALSE;
+        return $player == $this->status['turn'];
+    }
+
+    private function nextTurn() {
+        $this->status['turn'] = ($this->status['turn'] == 'Player1') ? 'Player2' : 'Player1';
+    }
+
+    private static function isPlayer($player) {
+        if (!is_string($player)) return FALSE;
+        switch ($player) {
+            case 'Player1':
+            case 'Player2':
+                return TRUE;
+            default:
+                return FALSE;
+        }
     }
 
     private static function sizeGood($shipName, $shipPositions) {
@@ -159,6 +183,13 @@ final class Game {
                 if (!in_array($position, $allPosition)) array_push($allPosition, $position);
                 else return TRUE;
             }
+        }
+        return FALSE;
+    }
+
+    private static function inArrayDepth2($needle , $haystack) {
+        foreach ($haystack as $item) {
+            if (in_array($needle, $item)) return TRUE;
         }
         return FALSE;
     }
