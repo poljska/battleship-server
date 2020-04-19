@@ -72,7 +72,7 @@ final class Game {
         $return['game_id'] = $this->game_id;
         $return['timestamp'] = $this->timestamp;
         $return['status'] = $this->status;
-        if ($player == 'Player1') {
+        if ($player === 'Player1') {
             $return['ships'] = $this->player_1_ships;
             $return['shots'] = $this->player_1_shots;
         }
@@ -86,7 +86,7 @@ final class Game {
     public function setShips($player, $ships) {
         if (!Game::isPlayer($player)) throw new InvalidPlayer($player);
         if (!is_array($ships)) throw new InvalidArguments($ships);
-        if (count($ships) != 5) throw new InvalidArguments($ships);
+        if (count($ships) !== 5) throw new InvalidArguments($ships);
         if (!isset($ships['carrier'], $ships['battleship'], $ships['destroyer'],
                    $ships['submarine'], $ships['patrol_boat'])
            ) throw new InvalidArguments($ships);
@@ -97,12 +97,12 @@ final class Game {
             if (!Game::isContinuous($shipPositions)) throw new InvalidArguments($ships);
         }
         if (Game::overlap($ships)) throw new InvalidArguments($ships);
-        if ($player == 'Player1') {
-            if ($this->player_1_ships != array()) throw new InvalidOperation('Position of ships can only be set once.');
+        if ($player === 'Player1') {
+            if ($this->player_1_ships !== array()) throw new InvalidOperation('Position of ships can only be set once.');
             $this->player_1_ships = $ships;
         }
         else {
-            if ($this->player_2_ships != array()) throw new InvalidOperation('Position of ships can only be set once.');
+            if ($this->player_2_ships !== array()) throw new InvalidOperation('Position of ships can only be set once.');
             $this->player_2_ships = $ships;
         }
         return TRUE;
@@ -112,7 +112,7 @@ final class Game {
         if (!Game::isPlayer($player)) throw new InvalidPlayer($player);
         if (!$this->isTurn($player)) throw new InvalidTurn($player);
         if (!Game::isPosition($position)) throw new InvalidPosition($position);
-        if ($player == 'Player1') {
+        if ($player === 'Player1') {
             $hit = Game::inArrayDepth2($position, $this->player_2_ships);
             array_push($this->player_1_shots, array($position, $hit));
         }
@@ -126,11 +126,11 @@ final class Game {
 
     private function isTurn($player) {
         if (!Game::isPlayer($player)) return FALSE;
-        return $player == $this->status['turn'];
+        return $player === $this->status['turn'];
     }
 
     private function nextTurn() {
-        $this->status['turn'] = ($this->status['turn'] == 'Player1') ? 'Player2' : 'Player1';
+        $this->status['turn'] = ($this->status['turn'] === 'Player1') ? 'Player2' : 'Player1';
     }
 
     private static function isPlayer($player) {
@@ -146,7 +146,7 @@ final class Game {
 
     private static function sizeGood($shipName, $shipPositions) {
         $size = array('carrier' => 5, 'battleship' => 4, 'destroyer' => 3, 'submarine' => 3, 'patrol_boat' => 2);
-        return count($shipPositions) == $size[$shipName];
+        return count($shipPositions) === $size[$shipName];
     }
 
     private static function validPositions($shipPositions) {
@@ -158,7 +158,7 @@ final class Game {
 
     private static function isPosition($position) {
         if (!is_array($position)) return FALSE;
-        if (count($position) != 2) return FALSE;
+        if (count($position) !== 2) return FALSE;
         foreach ($position as $v) {
             if (!is_int($v)) return FALSE;
             if ($v < 1 || $v > 10) return FALSE;
@@ -171,7 +171,7 @@ final class Game {
         $previousPosition = $shipPositions[0];
         for ($i=1; $i < count($shipPositions); $i++) {
             if (abs(($previousPosition[0] - $shipPositions[$i][0]) +
-                    ($previousPosition[1] - $shipPositions[$i][1])) != 1)
+                    ($previousPosition[1] - $shipPositions[$i][1])) !== 1)
                 return FALSE;
             $previousPosition = $shipPositions[$i];
         }
