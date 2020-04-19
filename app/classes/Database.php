@@ -27,7 +27,7 @@ final class Database {
                 )
             );
         } catch (PDOException $e) {
-            throw new Exception(NULL, NULL, $e); // TODO Pass e to custom exception
+            throw new DatabaseException(NULL, NULL, $e);
         }
     }
 
@@ -35,12 +35,12 @@ final class Database {
         try {
             $stm = $this->handler->prepare($query);
             $status = $stm->execute($args);
-            if ($status === FALSE) throw new Exception(); // TODO Custom exception
+            if ($status === FALSE) throw new DatabaseException($query, $args);
             $instruction = strtoupper(explode(' ', trim($query))[0]);
             switch ($instruction) {
                 case 'SELECT':
                     $results = $stm->fetchAll();
-                    if ($results === FALSE) throw new Exception(); // TODO Custom exception
+                    if ($results === FALSE) throw new DatabaseException($query, $args);
                     return $results;
                 case 'INSERT':
                     return $this->handler->lastInsertId();
@@ -50,7 +50,7 @@ final class Database {
                     return $stm->rowCount();
             }
         } catch (PDOException $e) {
-            throw new Exception(NULL, NULL, $e); // TODO Pass e to custom exception
+            throw new DatabaseException($query, $args, $e);
         }
     }
 }

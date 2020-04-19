@@ -34,3 +34,11 @@ class InvalidOperation extends Exception {
         parent::__construct($msg);
     }
 }
+
+class DatabaseException extends Exception {
+    function __construct($query, $args, $e = NULL) {
+        $details = array($query, $args);
+        $msg = '[DatabaseException]['.$this->getFile().':'.$this->getLine().'] -- '.json_encode($details);
+        parent::__construct($msg, 0, $e);
+    }
+}
