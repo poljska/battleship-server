@@ -27,3 +27,10 @@ class InvalidTurn extends Exception {
         parent::__construct($msg);
     }
 }
+
+class InvalidOperation extends Exception {
+    function __construct($details) {
+        $msg = '[InvalidOperation]['.$this->getFile().':'.$this->getLine().'] -- '.$details;
+        parent::__construct($msg);
+    }
+}

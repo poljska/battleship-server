@@ -98,9 +98,11 @@ final class Game {
         }
         if (Game::overlap($ships)) throw new InvalidArguments($ships);
         if ($player == 'Player1') {
+            if ($this->player_1_ships != array()) throw new InvalidOperation('Position of ships can only be set once.');
             $this->player_1_ships = $ships;
         }
         else {
+            if ($this->player_2_ships != array()) throw new InvalidOperation('Position of ships can only be set once.');
             $this->player_2_ships = $ships;
         }
         return TRUE;
