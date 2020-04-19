@@ -24,7 +24,7 @@ final class Game {
             $this->player_2_ships = array();
             $this->player_2_shots = array();
             $this->status = array();
-            $this->status['status'] = 'Ongoing';
+            $this->status['status'] = 'New';
             $this->status['turn'] = 'Player1';
             $this->status['nbPlayers'] = '0';
         }
@@ -105,10 +105,14 @@ final class Game {
             if ($this->player_2_ships !== array()) throw new InvalidOperation('Position of ships can only be set once.');
             $this->player_2_ships = $ships;
         }
+        if ($this->player_1_ships !== array() && $this->player_2_ships !== array()) {
+            $this->status['status'] = 'InProgress';
+        }
         return TRUE;
     }
 
     public function fire($player, $position) {
+        if (!$this->inProgress()) throw new InvalidOperation('This game is not in progress.');
         if (!Game::isPlayer($player)) throw new InvalidPlayer($player);
         if (!$this->isTurn($player)) throw new InvalidTurn($player);
         if (!Game::isPosition($position)) throw new InvalidPosition($position);
@@ -122,6 +126,10 @@ final class Game {
         }
         $this->nextTurn();
         return $hit;
+    }
+
+    private function inProgress() {
+        return $this->status['status'] === 'InProgress';
     }
 
     private function isTurn($player) {
