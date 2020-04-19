@@ -1,7 +1,7 @@
 <?php
 use Ramsey\Uuid\Uuid;
-require_once "Exceptions.php";
-
+require_once 'Database.php';
+require_once 'Exceptions.php';
 
 final class Game {
     private $id;              // Internal ID
@@ -14,9 +14,10 @@ final class Game {
     private $status;          // Additional data (status / turn / number of players / winner)
 
     function __construct($game_id = NULL) {
-        if ($game_id) {  // Existing game
+        if ($game_id !== NULL) {  // Existing game
             // TODO
         } else {  // New game
+            $this->id = NULL;
             $this->game_id = Uuid::uuid4()->toString();
             $this->timestamp = time();
             $this->player_1_ships = array();
@@ -43,7 +44,13 @@ final class Game {
     }
 
     public function delete() {
-        // TODO
+        if ($this->id !== NULL) {
+            $db = new Database();
+            $sql = 'DELETE FROM test WHERE id=?';
+            $args = array($this->id);
+            $db->execute($sql, $args);
+            $this->id = NULL;
+        }
     }
 
     public function getGame() {
