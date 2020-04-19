@@ -119,12 +119,20 @@ final class Game {
         if ($player === 'Player1') {
             $hit = Game::inArrayDepth2($position, $this->player_2_ships);
             array_push($this->player_1_shots, array($position, $hit));
+            $victory = $this->isWin($this->player_1_shots);
         }
         else {
             $hit = Game::inArrayDepth2($position, $this->player_1_ships);
             array_push($this->player_2_shots, array($position, $hit));
+            $victory = $this->isWin($this->player_2_shots);
         }
-        $this->nextTurn();
+        if ($victory) {
+            $this->status['status'] = 'Finished';
+            $this->status['winner'] = $player;
+        }
+        else {
+            $this->nextTurn();
+        }
         return $hit;
     }
 
@@ -135,6 +143,12 @@ final class Game {
     private function isTurn($player) {
         if (!Game::isPlayer($player)) return FALSE;
         return $player === $this->status['turn'];
+    }
+
+    private function isWin($shots) {
+        $success = array_filter($shots, function($v) { return $v[1] === TRUE; });
+        $success = array_unique($success, SORT_REGULAR);
+        return count($success) === 17 ? TRUE : FALSE;
     }
 
     private function nextTurn() {
