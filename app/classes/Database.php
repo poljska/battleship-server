@@ -22,9 +22,33 @@ final class Database {
                 array(
                     PDO::ATTR_PERSISTENT => TRUE,
                     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                    PDO::ATTR_EMULATE_PREPARES => FALSE
+                    PDO::ATTR_EMULATE_PREPARES => FALSE,
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
                 )
             );
+        } catch (PDOException $e) {
+            throw new Exception(NULL, NULL, $e); // TODO Pass e to custom exception
+        }
+    }
+
+    public function execute($query, $args = array()) {
+        try {
+            $stm = $this->handler->prepare($query);
+            $status = $stm->execute($args);
+            if ($status === FALSE) throw new Exception(); // TODO Custom exception
+            $instruction = strtoupper(explode(' ', trim($query))[0]);
+            switch ($instruction) {
+                case 'SELECT':
+                    $results = $stm->fetchAll();
+                    if ($results === FALSE) throw new Exception(); // TODO Custom exception
+                    return $results;
+                case 'INSERT':
+                    return $this->handler->lastInsertId();
+                case 'UPDATE':
+                case 'DELETE':
+                default:
+                    return $stm->rowCount();
+            }
         } catch (PDOException $e) {
             throw new Exception(NULL, NULL, $e); // TODO Pass e to custom exception
         }
