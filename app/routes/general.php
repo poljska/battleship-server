@@ -3,7 +3,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 /**
- * @api {get} /games Request all games
+ * @api {get} /games Request a summary for all games
  * @apiName GetAllGames
  * @apiGroup General
  */
