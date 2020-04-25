@@ -2,11 +2,9 @@
 
 PHP REST API for the battleship game.
 
-
 ## Table of Contents
 
 1. [Generate documentation](#generate-documentation)
-
 
 ## Generate documentation
 
