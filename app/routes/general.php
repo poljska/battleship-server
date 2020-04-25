@@ -106,15 +106,31 @@ $app->post('/games', function (Request $request, Response $response, array $args
  * @api {delete} /games Delete all games
  * @apiName DeleteAllGames
  * @apiGroup General
+ * @apiPermission none
+ *
+ * @apiExample {curl} Example usage:
+ *      curl -X DELETE <domain>/games
+ *
+ * @apiSuccessExample {json} Success response (example):
+ *      HTTP/1.1 200 OK
+ *
+ * @apiErrorExample {json} Error response (example):
+ *      HTTP/1.1 500 Internal Server Error
  */
 $app->delete('/games', function (Request $request, Response $response, array $args) {
-    $data = array('endpoint' => 'DeleteAllGames');
-    $payload = json_encode($data);
+    try {
+        $db = new Database();
+        $db->execute('DELETE FROM games');
+        $status = 200;
+    } catch (\Throwable $th) {
+        $status = 500;
+    }
 
+    $payload = '';
     $response->getBody()->write($payload);
     return $response
         ->withHeader('Content-Type', 'application/json')
-        ->withStatus(200);
+        ->withStatus($status);
 });
 
 /**
