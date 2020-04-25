@@ -15,7 +15,20 @@ final class Game {
 
     function __construct($game_id = NULL) {
         if ($game_id !== NULL) {  // Existing game
-            // TODO
+            if (!is_string($game_id)) throw new InvalidArguments($game_id);
+            $db = new Database();
+            $sql = 'SELECT * FROM games WHERE game_id=?';
+            $args = array($game_id);
+            $results = $db->execute($sql, $args)[0];
+            if (!$results) throw new InvalidGame($game_id);
+            $this->id = $results['id'];
+            $this->game_id = $results['game_id'];
+            $this->timestamp = $results['creation_ts'];
+            $this->player_1_ships = json_decode($results['player_1_ships']);
+            $this->player_1_shots = json_decode($results['player_1_shots']);
+            $this->player_2_ships = json_decode($results['player_2_ships']);
+            $this->player_2_shots = json_decode($results['player_2_shots']);
+            $this->status = json_decode($results['status']);
         } else {  // New game
             $this->id = NULL;
             $this->game_id = Uuid::uuid4()->toString();
