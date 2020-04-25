@@ -19,7 +19,7 @@ final class Game {
         } else {  // New game
             $this->id = NULL;
             $this->game_id = Uuid::uuid4()->toString();
-            $this->timestamp = time();
+            $this->timestamp = date('Y-m-d H:i:s');
             $this->player_1_ships = array();
             $this->player_1_shots = array();
             $this->player_2_ships = array();
@@ -27,7 +27,6 @@ final class Game {
             $this->status = array();
             $this->status['status'] = 'New';
             $this->status['turn'] = 'Player1';
-            $this->status['nbPlayers'] = '0';
         }
     }
 
@@ -40,13 +39,63 @@ final class Game {
     }
 
     public function save() {
-        // TODO
+        $db = new Database();
+        if ($this->id !== NULL) {  // Existing game
+            $sql = 'UPDATE games
+            SET player_1_ships = ?,
+                player_1_shots = ?,
+                player_2_ships = ?,
+                player_2_shots = ?,
+                status = ?
+            WHERE id = ?';
+            $args = array(
+                json_encode($this->player_1_ships),
+                json_encode($this->player_1_shots),
+                json_encode($this->player_2_ships),
+                json_encode($this->player_2_shots),
+                json_encode($this->status),
+                $this->id
+            );
+            $db->execute($sql, $args);
+        }
+        else {  // New game
+            $sql = 'INSERT INTO games (
+                game_id,
+                creation_ts,
+                player_1_ships,
+                player_1_shots,
+                player_2_ships,
+                player_2_shots,
+                status
+              )
+            VALUES
+              (
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?
+              )';
+            $args = array(
+                $this->game_id,
+                $this->timestamp,
+                json_encode($this->player_1_ships),
+                json_encode($this->player_1_shots),
+                json_encode($this->player_2_ships),
+                json_encode($this->player_2_shots),
+                json_encode($this->status)
+            );
+            $id = $db->execute($sql, $args);
+            $this->id = $id;
+        }
     }
 
     public function delete() {
-        if ($this->id !== NULL) {
+        if ($this->id !== NULL) {  // Existing game
             $db = new Database();
-            $sql = 'DELETE FROM test WHERE id=?';
+            $sql = 'DELETE FROM games WHERE id=?';
             $args = array($this->id);
             $db->execute($sql, $args);
             $this->id = NULL;
