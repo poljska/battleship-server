@@ -24,11 +24,11 @@ final class Game {
             $this->id = $results['id'];
             $this->game_id = $results['game_id'];
             $this->timestamp = $results['creation_ts'];
-            $this->player_1_ships = json_decode($results['player_1_ships']);
+            $this->player_1_ships = json_decode($results['player_1_ships'], TRUE);
             $this->player_1_shots = json_decode($results['player_1_shots']);
-            $this->player_2_ships = json_decode($results['player_2_ships']);
+            $this->player_2_ships = json_decode($results['player_2_ships'], TRUE);
             $this->player_2_shots = json_decode($results['player_2_shots']);
-            $this->status = json_decode($results['status']);
+            $this->status = json_decode($results['status'], TRUE);
         } else {  // New game
             $this->id = NULL;
             $this->game_id = Uuid::uuid4()->toString();
@@ -62,11 +62,11 @@ final class Game {
                 status = ?
             WHERE id = ?';
             $args = array(
-                json_encode($this->player_1_ships),
+                json_encode($this->player_1_ships, JSON_FORCE_OBJECT),
                 json_encode($this->player_1_shots),
-                json_encode($this->player_2_ships),
+                json_encode($this->player_2_ships, JSON_FORCE_OBJECT),
                 json_encode($this->player_2_shots),
-                json_encode($this->status),
+                json_encode($this->status, JSON_FORCE_OBJECT),
                 $this->id
             );
             $db->execute($sql, $args);
@@ -94,11 +94,11 @@ final class Game {
             $args = array(
                 $this->game_id,
                 $this->timestamp,
-                json_encode($this->player_1_ships),
+                json_encode($this->player_1_ships, JSON_FORCE_OBJECT),
                 json_encode($this->player_1_shots),
-                json_encode($this->player_2_ships),
+                json_encode($this->player_2_ships, JSON_FORCE_OBJECT),
                 json_encode($this->player_2_shots),
-                json_encode($this->status)
+                json_encode($this->status, JSON_FORCE_OBJECT)
             );
             $id = $db->execute($sql, $args);
             $this->id = $id;
