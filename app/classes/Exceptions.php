@@ -49,7 +49,7 @@ class DatabaseException extends Exception {
     }
 }
 
-class InvalidGame extends ClientException {
+class InvalidGame extends Exception {
     function __construct($game_id) {
         $msg = '[InvalidGame]['.$this->getFile().':'.$this->getLine().'] -- '.$game_id;
         parent::__construct($msg);

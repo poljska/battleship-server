@@ -40,7 +40,7 @@ require_once 'app/classes/Exceptions.php';
  *        }
  *      ]
  *
- * @apiErrorExample {json} Error response (example):
+ * @apiErrorExample {json} Error response (server error):
  *      HTTP/1.1 500 Internal Server Error
  */
 $app->get('/games', function (Request $request, Response $response, array $args) {
@@ -81,7 +81,7 @@ $app->get('/games', function (Request $request, Response $response, array $args)
  *        "game_id":"9543fa9c-14a1-4494-83ac-d81196415c6d"
  *      }
  *
- * @apiErrorExample {json} Error response (example):
+ * @apiErrorExample {json} Error response (server error):
  *      HTTP/1.1 500 Internal Server Error
  */
 $app->post('/games', function (Request $request, Response $response, array $args) {
@@ -111,10 +111,10 @@ $app->post('/games', function (Request $request, Response $response, array $args
  * @apiExample {curl} Example usage:
  *      curl -X DELETE <domain>/games
  *
- * @apiSuccessExample {json} Success response (example):
+ * @apiSuccessExample {json} Success response:
  *      HTTP/1.1 200 OK
  *
- * @apiErrorExample {json} Error response (example):
+ * @apiErrorExample {json} Error response (server error):
  *      HTTP/1.1 500 Internal Server Error
  */
 $app->delete('/games', function (Request $request, Response $response, array $args) {
@@ -137,17 +137,39 @@ $app->delete('/games', function (Request $request, Response $response, array $ar
  * @api {delete} /games/:id Delete a single game
  * @apiName DeleteSingleGame
  * @apiGroup General
+ * @apiPermission none
+ *
+ * @apiExample {curl} Example usage:
+ *      curl -X DELETE <domain>/games/fc3a19eb-9649-44eb-a8bc-bb77e046fb3b
+ *
+ * @apiSuccessExample {json} Success response:
+ *      HTTP/1.1 200 OK
+ *
+ * @apiErrorExample {json} Error response (game does not exist):
+ *      HTTP/1.1 404 Not Found
+ * @apiErrorExample {json} Error response (bad client request):
+ *      HTTP/1.1 400 Bad Request
+ * @apiErrorExample {json} Error response (server error):
+ *      HTTP/1.1 500 Internal Server Error
  */
 $app->delete('/games/{id}', function (Request $request, Response $response, array $args) {
-    $gameId = $args['id'];
+    try {
+        $g = new Game($args['id']);
+        $g->delete();
+        $status = 200;
+    } catch (\InvalidGame $th) {
+        $status = 404;
+    } catch (\ClientException $th) {
+        $status = 400;
+    } catch (\Throwable $th) {
+        $status = 500;
+    }
 
-    $data = array('endpoint' => 'DeleteSingleGame', 'gameId' => $gameId);
-    $payload = json_encode($data);
-
+    $payload = '';
     $response->getBody()->write($payload);
     return $response
         ->withHeader('Content-Type', 'application/json')
-        ->withStatus(200);
+        ->withStatus($status);
 });
 
 /**
