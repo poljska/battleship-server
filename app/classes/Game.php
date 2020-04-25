@@ -167,11 +167,11 @@ final class Game {
         }
         if (Game::overlap($ships)) throw new InvalidArguments($ships);
         if ($player === 'Player1') {
-            if ($this->player_1_ships !== array()) throw new InvalidOperation('Position of ships can only be set once.');
+            if ($this->player_1_ships !== array()) throw new ForbiddenOperation('Position of ships can only be set once.');
             $this->player_1_ships = $ships;
         }
         else {
-            if ($this->player_2_ships !== array()) throw new InvalidOperation('Position of ships can only be set once.');
+            if ($this->player_2_ships !== array()) throw new ForbiddenOperation('Position of ships can only be set once.');
             $this->player_2_ships = $ships;
         }
         if ($this->player_1_ships !== array() && $this->player_2_ships !== array()) {
@@ -181,7 +181,7 @@ final class Game {
     }
 
     public function fire($player, $position) {
-        if (!$this->inProgress()) throw new InvalidOperation('This game is not in progress.');
+        if (!$this->inProgress()) throw new ForbiddenOperation('This game is not in progress.');
         if (!Game::isPlayer($player)) throw new InvalidPlayer($player);
         if (!$this->isTurn($player)) throw new InvalidTurn($player);
         if (!Game::isPosition($position)) throw new InvalidPosition($position);

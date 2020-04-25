@@ -34,13 +34,6 @@ class InvalidTurn extends ClientException {
     }
 }
 
-class InvalidOperation extends ClientException {
-    function __construct($details) {
-        $msg = '[InvalidOperation]['.$this->getFile().':'.$this->getLine().'] -- '.$details;
-        parent::__construct($msg);
-    }
-}
-
 class DatabaseException extends Exception {
     function __construct($query, $args, $e = NULL) {
         $details = array($query, $args);
