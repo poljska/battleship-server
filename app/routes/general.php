@@ -142,13 +142,15 @@ $app->delete('/games', function (Request $request, Response $response, array $ar
  * @apiExample {curl} Example usage:
  *      curl -X DELETE <domain>/games/fc3a19eb-9649-44eb-a8bc-bb77e046fb3b
  *
+ * @apiParam (Parameters) {String} :id Game ID
+ *
  * @apiSuccessExample {json} Success response:
  *      HTTP/1.1 200 OK
  *
- * @apiErrorExample {json} Error response (game does not exist):
- *      HTTP/1.1 404 Not Found
  * @apiErrorExample {json} Error response (bad client request):
  *      HTTP/1.1 400 Bad Request
+ * @apiErrorExample {json} Error response (game does not exist):
+ *      HTTP/1.1 404 Not Found
  * @apiErrorExample {json} Error response (server error):
  *      HTTP/1.1 500 Internal Server Error
  */
@@ -157,10 +159,10 @@ $app->delete('/games/{id}', function (Request $request, Response $response, arra
         $g = new Game($args['id']);
         $g->delete();
         $status = 200;
-    } catch (\InvalidGame $th) {
-        $status = 404;
     } catch (\ClientException $th) {
         $status = 400;
+    } catch (\InvalidGame $th) {
+        $status = 404;
     } catch (\Throwable $th) {
         $status = 500;
     }
@@ -193,15 +195,116 @@ $app->post('/games/{id}/join', function (Request $request, Response $response, a
  * @api {get} /games/:id Request data of a finished game
  * @apiName GetGame
  * @apiGroup General
+ * @apiPermission none
+ *
+ * @apiExample {curl} Example usage:
+ *      curl -X GET <domain>/games/f38ab6af-3412-4c4d-ad2a-3c8941ebeb7d
+ *
+ * @apiParam (Parameters) {String} :id Game ID
+ *
+ * @apiSuccess (Success) {Object} game Game data
+ * @apiSuccess (Success) {String} game.game_id Game ID
+ * @apiSuccess (Success) {Date='YYYY-mm-dd HH:ii:ss'}} game.timestamp Creation timestamp
+ * @apiSuccess (Success) {Object} game.player_1_ships Position of player 1's ships
+ * @apiSuccess (Success) {Shot[]} game.player_1_shots Positions targeted by player 1
+ * @apiSuccess (Success) {Object} game.player_2_ships Position of player 2's ships
+ * @apiSuccess (Success) {Shot[]} game.player_2_shots Positions targeted by player 2
+ * @apiSuccess (Success) {Object} game.status Additional data
+ * @apiSuccessExample {json} Success response (example):
+ *      HTTP/1.1 200 OK
+ *      {
+ *        "game_id":"f38ab6af-3412-4c4d-ad2a-3c8941ebeb7d",
+ *        "timestamp":"2020-04-25 21:06:44",
+ *        "player_1_ships":{
+ *          "carrier":[[2, 1], [3, 1], [4, 1], [5, 1], [6, 1]],
+ *          "destroyer":[[4, 7], [4, 5], [4, 6]],
+ *          "submarine":[[4, 9], [2, 9], [3, 9]],
+ *          "battleship":[[1, 5], [1, 6], [1, 7], [1, 8]],
+ *          "patrol_boat":[[6, 9], [5, 9]]
+ *        },
+ *        "player_1_shots":[
+ *          [[2, 1], true],
+ *          [[3, 1], true],
+ *          [[4, 1], true],
+ *          [[5, 1], true],
+ *          [[6, 1], true],
+ *          [[1, 5], true],
+ *          [[1, 6], true],
+ *          [[1, 7], true],
+ *          [[1, 8], true],
+ *          [[4, 7], true],
+ *          [[4, 5], true],
+ *          [[4, 6], true],
+ *          [[4, 9], true],
+ *          [[2, 9], true],
+ *          [[3, 9], true],
+ *          [[6, 9], true],
+ *          [[5, 9], true]
+ *        ],
+ *        "player_2_ships":{
+ *          "carrier":[[2, 1], [3, 1], [4, 1], [5, 1], [6, 1]],
+ *          "destroyer":[[4, 7], [4, 5], [4, 6]],
+ *          "submarine":[[4, 9], [2, 9], [3, 9]],
+ *          "battleship":[[1, 5], [1, 6], [1, 7], [1, 8]],
+ *          "patrol_boat":[[6, 9], [5, 9]]
+ *        },
+ *        "player_2_shots":[
+ *          [[1, 1], false],
+ *          [[1, 2], false],
+ *          [[1, 3], false],
+ *          [[1, 4], false],
+ *          [[1, 5], true],
+ *          [[1, 6], true],
+ *          [[1, 7], true],
+ *          [[1, 8], true],
+ *          [[1, 9], false],
+ *          [[1, 10], false],
+ *          [[2, 1], true],
+ *          [[2, 2], false],
+ *          [[2, 3], false],
+ *          [[2, 4], false],
+ *          [[2, 5], false],
+ *          [[2, 6], false]
+ *        ],
+ *        "status":{
+ *          "turn":"Player1",
+ *          "status":"Finished",
+ *          "winner":"Player1"
+ *        }
+ *      }
+ *
+ * @apiErrorExample {json} Error response (bad client request):
+ *      HTTP/1.1 400 Bad Request
+ * @apiErrorExample {json} Error response (game is not finished):
+ *      HTTP/1.1 403 Forbidden
+ * @apiErrorExample {json} Error response (game does not exist):
+ *      HTTP/1.1 404 Not Found
+ * @apiErrorExample {json} Error response (server error):
+ *      HTTP/1.1 500 Internal Server Error
  */
 $app->get('/games/{id}', function (Request $request, Response $response, array $args) {
-    $gameId = $args['id'];
-
-    $data = array('endpoint' => 'GetGame', 'gameId' => $gameId);
-    $payload = json_encode($data);
+    try {
+        $g = new Game($args['id']);
+        $data = $g->getGame();
+        if ($data['status']['status'] !== 'Finished') throw new ForbiddenOperation('Game is not finished');
+        $status = 200;
+        $payload = json_encode($data);
+    } catch (\ClientException $th) {
+        $status = 400;
+        $payload = '';
+    } catch (\ForbiddenOperation $th) {
+        $status = 403;
+        $payload = '';
+    } catch (\InvalidGame $th) {
+        $status = 404;
+        $payload = '';
+    } catch (\Throwable $th) {
+        $status = 500;
+        $payload = '';
+    }
 
     $response->getBody()->write($payload);
     return $response
         ->withHeader('Content-Type', 'application/json')
-        ->withStatus(200);
+        ->withStatus($status);
 });

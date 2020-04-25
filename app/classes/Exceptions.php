@@ -55,3 +55,10 @@ class InvalidGame extends Exception {
         parent::__construct($msg);
     }
 }
+
+class ForbiddenOperation extends Exception {
+    function __construct($details) {
+        $msg = '[ForbiddenOperation]['.$this->getFile().':'.$this->getLine().'] -- '.$details;
+        parent::__construct($msg);
+    }
+}
