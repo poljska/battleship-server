@@ -1,6 +1,8 @@
 <?php
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+require_once 'app/classes/Game.php';
+require_once 'app/classes/Exceptions.php';
 
 /**
  * @apiDefine player Restricted to players
@@ -98,13 +100,7 @@ $app->get('/games/{id}/last-fire', function (Request $request, Response $respons
     try {
         $g = new Game($args['id']);
         if (!$g->isInProgress()) throw new ForbiddenOperation('This game is not in progress.');
-        if (!$request->hasHeader('X-Auth')) throw new ForbiddenOperation('X-Auth HTTP header is no set.');
-        $auth = base64_decode($request->getHeader('X-Auth')[0]);
-        if (!$auth) throw new ForbiddenOperation('X-Auth HTTP header is incorrect.');
-        $auth = explode(':', $auth);
-        if ($auth[1] !== hash('sha3-512', $args['id'].':'.$auth[0].':'.getenv('PRIVILEGED')))
-            throw new ForbiddenOperation('X-Auth HTTP header is incorrect.');
-
+        if (!validAuth($request, $args['id'])) throw new ForbiddenOperation('Incorrect X-Auth HTTP header.');
         $data = $g->getGame();
         switch ($g->getTurn()) {
             case 'Player1':
@@ -141,3 +137,13 @@ $app->get('/games/{id}/last-fire', function (Request $request, Response $respons
         ->withHeader('Content-Type', 'application/json')
         ->withStatus($status);
 });
+
+function validAuth(Request $request, $gameId) {
+    if (!$request->hasHeader('X-Auth')) return FALSE;  // X-Auth HTTP header is no set
+    $auth = base64_decode($request->getHeader('X-Auth')[0], TRUE);
+    if (!$auth) return FALSE;  // Incorrect base64
+    $auth = explode(':', $auth);  // [0] is the player's name ; [1] is the integrity hash
+    if ($auth[1] !== hash('sha3-512', $gameId.':'.$auth[0].':'.getenv('PRIVILEGED'))) return FALSE;
+        // Incorrect X-Auth HTTP header
+    return TRUE;
+}
