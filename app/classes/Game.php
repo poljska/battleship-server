@@ -1,5 +1,6 @@
 <?php
 use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\Rfc4122\Validator as Rfc4122Validator;
 require_once 'Database.php';
 require_once 'Exceptions.php';
 
@@ -16,6 +17,8 @@ final class Game {
     function __construct($game_id = NULL) {
         if ($game_id !== NULL) {  // Existing game
             if (!is_string($game_id)) throw new InvalidArguments($game_id);
+            $v = new Rfc4122Validator();
+            if (!$v->validate($game_id)) throw new InvalidArguments($game_id);
             $db = new Database();
             $sql = 'SELECT * FROM games WHERE game_id=?';
             $args = array($game_id);
