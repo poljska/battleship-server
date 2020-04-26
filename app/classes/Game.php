@@ -7,11 +7,11 @@ final class Game {
     private $id;              // Internal ID
     private $game_id;         // Public game ID
     private $timestamp;       // Game creation timestamp
-    private $player_1_ships;  // Positions of all player 1 ships
+    private $player_1_ships;  // Position of player 1's ships
     private $player_1_shots;  // Positions targeted by player 1
-    private $player_2_ships;  // Positions of all player 2 ships
+    private $player_2_ships;  // Position of player 2's ships
     private $player_2_shots;  // Positions targeted by player 2
-    private $status;          // Additional data (status / turn / number of players / winner)
+    private $status;          // Additional informations (status / turn / number of players / winner)
 
     function __construct($game_id = NULL) {
         if ($game_id !== NULL) {  // Existing game
@@ -39,7 +39,7 @@ final class Game {
             $this->player_2_shots = array();
             $this->status = array();
             $this->status['status'] = 'New';
-            $this->status['turn'] = 'Player1';
+            $this->status['nbPlayers'] = 0;
         }
     }
 
@@ -153,6 +153,7 @@ final class Game {
     }
 
     public function setShips($player, $ships) {
+        if ($this->status['status'] !== 'New') throw new ForbiddenOperation('This game is not new.');
         if (!Game::isPlayer($player)) throw new InvalidPlayer($player);
         if (!is_array($ships)) throw new InvalidArguments($ships);
         if (count($ships) !== 5) throw new InvalidArguments($ships);
@@ -176,12 +177,14 @@ final class Game {
         }
         if ($this->player_1_ships !== array() && $this->player_2_ships !== array()) {
             $this->status['status'] = 'InProgress';
+            $this->status['turn'] = 'Player1';
+            unset($this->status['nbPlayers']);
         }
         return TRUE;
     }
 
     public function fire($player, $position) {
-        if (!$this->inProgress()) throw new ForbiddenOperation('This game is not in progress.');
+        if ($this->status['status'] !== 'InProgress') throw new ForbiddenOperation('This game is not in progress.');
         if (!Game::isPlayer($player)) throw new InvalidPlayer($player);
         if (!$this->isTurn($player)) throw new InvalidTurn($player);
         if (!Game::isPosition($position)) throw new InvalidPosition($position);
@@ -198,6 +201,7 @@ final class Game {
         if ($victory) {
             $this->status['status'] = 'Finished';
             $this->status['winner'] = $player;
+            unset($this->status['turn']);
         }
         else {
             $this->nextTurn();
@@ -205,8 +209,18 @@ final class Game {
         return $hit;
     }
 
-    private function inProgress() {
-        return $this->status['status'] === 'InProgress';
+    public function addNewPlayer() {
+        if ($this->status['status'] !== 'New') throw new ForbiddenOperation('This game is not new.');
+        switch ($this->status['nbPlayers']) {
+            case 0:
+                $this->status['nbPlayers']++;
+                return "Player1";
+            case 1:
+                $this->status['nbPlayers']++;
+                return "Player2";
+            default:
+                throw new ForbiddenOperation('This game is already full.');
+        }
     }
 
     private function isTurn($player) {

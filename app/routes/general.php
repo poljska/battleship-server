@@ -178,17 +178,55 @@ $app->delete('/games/{id}', function (Request $request, Response $response, arra
  * @api {post} /games/:id/join Join a game
  * @apiName JoinGame
  * @apiGroup General
+ * @apiPermission none
+ *
+ * @apiExample {curl} Example usage:
+ *      curl -X POST <domain>/games/114d8532-f060-4f04-a891-d04ca6beda42/join
+ *
+ * @apiParam (Parameters) {String} :id Game ID
+ *
+ * @apiSuccess (Success) {String} X-Auth Authentication token
+ * @apiSuccessExample {json} Success response (example):
+ *      HTTP/1.1 200 OK
+ *      {
+ *        "X-Auth":"UGxheWVyMTo1MzllOGNlOGJkNGZmZWM4MGI3MWEyZTZmNTI3N2QzZGQ0NWE2ZjU1MmI4NDRmMTYyNWNlNjI5MGQ2NWFhMTliZjIxZjc0ZWJiNGYyOTU0NTE1ODI4MjQyMWQ0YjIwMjc0MWViNzZhODY0YjRkOWQ0ZWJmNDYyMzcyZjFhMDM1YQ=="
+ *      }
+ *
+ * @apiErrorExample {json} Error response (bad client request):
+ *      HTTP/1.1 400 Bad Request
+ * @apiErrorExample {json} Error response (ongoing or full game):
+ *      HTTP/1.1 403 Forbidden
+ * @apiErrorExample {json} Error response (game does not exist):
+ *      HTTP/1.1 404 Not Found
+ * @apiErrorExample {json} Error response (server error):
+ *      HTTP/1.1 500 Internal Server Error
  */
 $app->post('/games/{id}/join', function (Request $request, Response $response, array $args) {
-    $gameId = $args['id'];
-
-    $data = array('endpoint' => 'JoinGame', 'gameId' => $gameId);
-    $payload = json_encode($data);
+    try {
+        $g = new Game($args['id']);
+        $player = $g->addNewPlayer();
+        $g->save();
+        $auth = base64_encode($player.':'.hash('sha3-512', $args['id'].':'.$player.':'.getenv('PRIVILEGED')));
+        $payload = json_encode(array('X-Auth' => $auth));
+        $status = 200;
+    } catch (\ClientException $th) {
+        $status = 400;
+        $payload = '';
+    } catch (\ForbiddenOperation $th) {
+        $status = 403;
+        $payload = '';
+    } catch (\InvalidGame $th) {
+        $status = 404;
+        $payload = '';
+    } catch (\Throwable $th) {
+        $status = 500;
+        $payload = '';
+    }
 
     $response->getBody()->write($payload);
     return $response
         ->withHeader('Content-Type', 'application/json')
-        ->withStatus(200);
+        ->withStatus($status);
 });
 
 /**

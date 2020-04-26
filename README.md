@@ -23,7 +23,7 @@ CREATE TABLE Games (
   player_1_shots JSONB NOT NULL,  -- Positions targeted by player 1
   player_2_ships JSONB NOT NULL,  -- Position of player 2's ships
   player_2_shots JSONB NOT NULL,  -- Positions targeted by player 2
-  status JSONB NOT NULL           -- Additional informations (status/winner/turn)
+  status JSONB NOT NULL           -- Additional informations (status / turn / number of players / winner)
 );
 ```
 
