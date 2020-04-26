@@ -64,32 +64,35 @@ $app->patch('/games/{id}/fire', function (Request $request, Response $response, 
  * @apiGroup Game
  * @apiPermission player
  *
- * @apiExample {curl} Example usage:
- *      curl -X GET <domain>/games/87b7efd3-ff7b-42cf-977b-3b672021649c/last-fire -H 'X-Auth: UGxheWVyMTpiMWViYjc2ZjViNzRhYjI4NjFiNzAyNzIwNTFhZGRlMzdiMjAzM2EyOTQ0NjgzOGYxZWVmMDk0ZjhlNTY2Yzk1MGVjODYyOTJiOTI5MzI0OWE3OWIzOGExZWJhODNjNjk3YmY5ZDU3NGQ5NWI3YzBkMTZlNjUyMzllZjQ0NDZiOA=='
+ * @apiDescription
+ * Will raise a `400 Bad Request` error if called with bad parameters.
  *
- * @apiHeader (Headers) {String} X-Auth Authentication token.
+ * Will raise a `403 Forbidden` error if the request do not include a valid X-Auth header.
+ *
+ * Will raise a `403 Forbidden` error if the specified game isn't ongoing.
+ *
+ * Will raise a `404 Not Found` error if the specified game does not exists.
+ *
+ * Will raise a `500 Internal Server Error` error if an internal error occurs.
+ *
+ *
+ * @apiExample {curl} Example usage:
+ *      curl -X GET <domain>/games/<:id>/last-fire -H 'X-Auth: <:token>'
+ *
+ * @apiHeader (Request headers) {String} X-Auth Authentication token
  * @apiHeaderExample {String} Headers (example):
  *      X-Auth: UGxheWVyMTpiMWViYjc2ZjViNzRhYjI4NjFiNzAyNzIwNTFhZGRlMzdiMjAzM2EyOTQ0NjgzOGYxZWVmMDk0ZjhlNTY2Yzk1MGVjODYyOTJiOTI5MzI0OWE3OWIzOGExZWJhODNjNjk3YmY5ZDU3NGQ5NWI3YzBkMTZlNjUyMzllZjQ0NDZiOA==
  *
- * @apiParam (Parameters) {String} :id Game ID
+ * @apiParam (URL parameters) {String} :id Game ID
  *
- * @apiSuccess (Success) {String} player Last player's name
- * @apiSuccess (Success) {Shot} last_shot Last shot
+ * @apiSuccess (Success response body) {String} player Last player's name
+ * @apiSuccess (Success response body) {Shot} last_shot Last shot
  * @apiSuccessExample {json} Success response (example):
  *      HTTP/1.1 200 OK
  *      {
  *        "player":"Player2",
  *        "last_shot":[[2, 6], false]
  *      }
- *
- * @apiErrorExample {json} Error response (bad client request):
- *      HTTP/1.1 400 Bad Request
- * @apiErrorExample {json} Error response (not an ongoing game or wrong X-Auth header):
- *      HTTP/1.1 403 Forbidden
- * @apiErrorExample {json} Error response (game does not exist):
- *      HTTP/1.1 404 Not Found
- * @apiErrorExample {json} Error response (server error):
- *      HTTP/1.1 500 Internal Server Error
  */
 $app->get('/games/{id}/last-fire', function (Request $request, Response $response, array $args) {
     try {

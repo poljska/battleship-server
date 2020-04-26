@@ -11,14 +11,17 @@ require_once 'app/classes/Exceptions.php';
  * @apiGroup General
  * @apiPermission none
  *
+ * @apiDescription
+ * Will raise a `500 Internal Server Error` error if an internal error occurs.
+ *
  * @apiExample {curl} Example usage:
  *      curl -X GET <domain>/games
  *
- * @apiSuccess (Success) {Object[]} games List of all games
- * @apiSuccess (Success) {Object} games.game Game summary
- * @apiSuccess (Success) {String} games.game.game_id Game ID
- * @apiSuccess (Success) {Date='YYYY-mm-dd HH:ii:ss'}} games.game.timestamp Creation timestamp
- * @apiSuccess (Success) {Object} games.game.status Additional data
+ * @apiSuccess (Success response body) {Object[]} games List of all games
+ * @apiSuccess (Success response body) {Object} games.game Game summary
+ * @apiSuccess (Success response body) {String} games.game.game_id Game ID
+ * @apiSuccess (Success response body) {Date='YYYY-mm-dd HH:ii:ss'}} games.game.timestamp Creation timestamp
+ * @apiSuccess (Success response body) {Object} games.game.status Additional data
  * @apiSuccessExample {json} Success response (example):
  *      HTTP/1.1 200 OK
  *      [
@@ -39,9 +42,6 @@ require_once 'app/classes/Exceptions.php';
  *          }
  *        }
  *      ]
- *
- * @apiErrorExample {json} Error response (server error):
- *      HTTP/1.1 500 Internal Server Error
  */
 $app->get('/games', function (Request $request, Response $response, array $args) {
     try {
@@ -71,18 +71,18 @@ $app->get('/games', function (Request $request, Response $response, array $args)
  * @apiGroup General
  * @apiPermission none
  *
+ * @apiDescription
+ * Will raise a `500 Internal Server Error` error if an internal error occurs.
+ *
  * @apiExample {curl} Example usage:
  *      curl -X POST <domain>/games
  *
- * @apiSuccess (Success) {String} game_id Game ID
+ * @apiSuccess (Success response body) {String} game_id Game ID
  * @apiSuccessExample {json} Success response (example):
  *      HTTP/1.1 201 Created
  *      {
  *        "game_id":"9543fa9c-14a1-4494-83ac-d81196415c6d"
  *      }
- *
- * @apiErrorExample {json} Error response (server error):
- *      HTTP/1.1 500 Internal Server Error
  */
 $app->post('/games', function (Request $request, Response $response, array $args) {
     try {
@@ -108,14 +108,14 @@ $app->post('/games', function (Request $request, Response $response, array $args
  * @apiGroup General
  * @apiPermission none
  *
+ * @apiDescription
+ * Will raise a `500 Internal Server Error` error if an internal error occurs.
+ *
  * @apiExample {curl} Example usage:
  *      curl -X DELETE <domain>/games
  *
  * @apiSuccessExample {json} Success response:
  *      HTTP/1.1 200 OK
- *
- * @apiErrorExample {json} Error response (server error):
- *      HTTP/1.1 500 Internal Server Error
  */
 $app->delete('/games', function (Request $request, Response $response, array $args) {
     try {
@@ -139,20 +139,20 @@ $app->delete('/games', function (Request $request, Response $response, array $ar
  * @apiGroup General
  * @apiPermission none
  *
- * @apiExample {curl} Example usage:
- *      curl -X DELETE <domain>/games/fc3a19eb-9649-44eb-a8bc-bb77e046fb3b
+ * @apiDescription
+ * Will raise a `400 Bad Request` error if called with bad parameters.
  *
- * @apiParam (Parameters) {String} :id Game ID
+ * Will raise a `404 Not Found` error if the specified game does not exists.
+ *
+ * Will raise a `500 Internal Server Error` error if an internal error occurs.
+ *
+ * @apiExample {curl} Example usage:
+ *      curl -X DELETE <domain>/games/<:id>
+ *
+ * @apiParam (URL parameters) {String} :id Game ID
  *
  * @apiSuccessExample {json} Success response:
  *      HTTP/1.1 200 OK
- *
- * @apiErrorExample {json} Error response (bad client request):
- *      HTTP/1.1 400 Bad Request
- * @apiErrorExample {json} Error response (game does not exist):
- *      HTTP/1.1 404 Not Found
- * @apiErrorExample {json} Error response (server error):
- *      HTTP/1.1 500 Internal Server Error
  */
 $app->delete('/games/{id}', function (Request $request, Response $response, array $args) {
     try {
@@ -180,26 +180,26 @@ $app->delete('/games/{id}', function (Request $request, Response $response, arra
  * @apiGroup General
  * @apiPermission none
  *
+ * @apiDescription
+ * Will raise a `400 Bad Request` error if called with bad parameters.
+ *
+ * Will raise a `403 Forbidden` error if the specified game isn't a new game.
+ *
+ * Will raise a `404 Not Found` error if the specified game does not exists.
+ *
+ * Will raise a `500 Internal Server Error` error if an internal error occurs.
+ *
  * @apiExample {curl} Example usage:
- *      curl -X POST <domain>/games/114d8532-f060-4f04-a891-d04ca6beda42/join
+ *      curl -X POST <domain>/games/<:id>/join
  *
- * @apiParam (Parameters) {String} :id Game ID
+ * @apiParam (URL parameters) {String} :id Game ID
  *
- * @apiSuccess (Success) {String} X-Auth Authentication token
+ * @apiSuccess (Success response body) {String} X-Auth Authentication token
  * @apiSuccessExample {json} Success response (example):
  *      HTTP/1.1 200 OK
  *      {
  *        "X-Auth":"UGxheWVyMTo1MzllOGNlOGJkNGZmZWM4MGI3MWEyZTZmNTI3N2QzZGQ0NWE2ZjU1MmI4NDRmMTYyNWNlNjI5MGQ2NWFhMTliZjIxZjc0ZWJiNGYyOTU0NTE1ODI4MjQyMWQ0YjIwMjc0MWViNzZhODY0YjRkOWQ0ZWJmNDYyMzcyZjFhMDM1YQ=="
  *      }
- *
- * @apiErrorExample {json} Error response (bad client request):
- *      HTTP/1.1 400 Bad Request
- * @apiErrorExample {json} Error response (ongoing or full game):
- *      HTTP/1.1 403 Forbidden
- * @apiErrorExample {json} Error response (game does not exist):
- *      HTTP/1.1 404 Not Found
- * @apiErrorExample {json} Error response (server error):
- *      HTTP/1.1 500 Internal Server Error
  */
 $app->post('/games/{id}/join', function (Request $request, Response $response, array $args) {
     try {
@@ -235,19 +235,28 @@ $app->post('/games/{id}/join', function (Request $request, Response $response, a
  * @apiGroup General
  * @apiPermission none
  *
+ * @apiDescription
+ * Will raise a `400 Bad Request` error if called with bad parameters.
+ *
+ * Will raise a `403 Forbidden` error if the specified game isn't finished.
+ *
+ * Will raise a `404 Not Found` error if the specified game does not exists.
+ *
+ * Will raise a `500 Internal Server Error` error if an internal error occurs.
+ *
  * @apiExample {curl} Example usage:
- *      curl -X GET <domain>/games/f38ab6af-3412-4c4d-ad2a-3c8941ebeb7d
+ *      curl -X GET <domain>/games/<:id>
  *
- * @apiParam (Parameters) {String} :id Game ID
+ * @apiParam (URL parameters) {String} :id Game ID
  *
- * @apiSuccess (Success) {Object} game Game data
- * @apiSuccess (Success) {String} game.game_id Game ID
- * @apiSuccess (Success) {Date='YYYY-mm-dd HH:ii:ss'}} game.timestamp Creation timestamp
- * @apiSuccess (Success) {Object} game.player_1_ships Position of player 1's ships
- * @apiSuccess (Success) {Shot[]} game.player_1_shots Positions targeted by player 1
- * @apiSuccess (Success) {Object} game.player_2_ships Position of player 2's ships
- * @apiSuccess (Success) {Shot[]} game.player_2_shots Positions targeted by player 2
- * @apiSuccess (Success) {Object} game.status Additional data
+ * @apiSuccess (Success response body) {Object} game Game data
+ * @apiSuccess (Success response body) {String} game.game_id Game ID
+ * @apiSuccess (Success response body) {Date='YYYY-mm-dd HH:ii:ss'}} game.timestamp Creation timestamp
+ * @apiSuccess (Success response body) {Object} game.player_1_ships Position of player 1's ships
+ * @apiSuccess (Success response body) {Shot[]} game.player_1_shots Positions targeted by player 1
+ * @apiSuccess (Success response body) {Object} game.player_2_ships Position of player 2's ships
+ * @apiSuccess (Success response body) {Shot[]} game.player_2_shots Positions targeted by player 2
+ * @apiSuccess (Success response body) {Object} game.status Additional data
  * @apiSuccessExample {json} Success response (example):
  *      HTTP/1.1 200 OK
  *      {
@@ -309,15 +318,6 @@ $app->post('/games/{id}/join', function (Request $request, Response $response, a
  *          "winner":"Player1"
  *        }
  *      }
- *
- * @apiErrorExample {json} Error response (bad client request):
- *      HTTP/1.1 400 Bad Request
- * @apiErrorExample {json} Error response (game is not finished):
- *      HTTP/1.1 403 Forbidden
- * @apiErrorExample {json} Error response (game does not exist):
- *      HTTP/1.1 404 Not Found
- * @apiErrorExample {json} Error response (server error):
- *      HTTP/1.1 500 Internal Server Error
  */
 $app->get('/games/{id}', function (Request $request, Response $response, array $args) {
     try {
