@@ -48,6 +48,7 @@ final class Game {
     }
 
     public function getTurn() {
+        if (!$this->isInProgress()) throw new ForbiddenOperation('This game is not in progress.');
         return $this->status['turn'];
     }
 
@@ -184,7 +185,7 @@ final class Game {
     }
 
     public function fire($player, $position) {
-        if ($this->status['status'] !== 'InProgress') throw new ForbiddenOperation('This game is not in progress.');
+        if (!$this->isInProgress()) throw new ForbiddenOperation('This game is not in progress.');
         if (!Game::isPlayer($player)) throw new InvalidPlayer($player);
         if (!$this->isTurn($player)) throw new InvalidTurn($player);
         if (!Game::isPosition($position)) throw new InvalidPosition($position);
@@ -221,6 +222,14 @@ final class Game {
             default:
                 throw new ForbiddenOperation('This game is already full.');
         }
+    }
+
+    public function isInProgress() {
+        return $this->status['status'] === 'InProgress';
+    }
+
+    public function isFinished() {
+        return $this->status['status'] === 'Finished';
     }
 
     private function isTurn($player) {

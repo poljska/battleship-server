@@ -16,7 +16,7 @@ Database schema used by the API.
 -- Battleship server database schema
 
 CREATE TABLE Games (
-  id SERIAL PRIMARY KEY,         -- Internal ID
+  id SERIAL PRIMARY KEY,          -- Internal ID
   game_id TEXT UNIQUE NOT NULL,   -- UUID v4 identifier
   creation_ts TIMESTAMP NOT NULL, -- Timestamp of the game's creation
   player_1_ships JSONB NOT NULL,  -- Position of player 1's ships

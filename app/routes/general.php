@@ -34,8 +34,8 @@ require_once 'app/classes/Exceptions.php';
  *          "game_id":"64f75e0e-162e-4c95-b909-87a959cffed2",
  *          "timestamp":"2020-04-25 19:57:13",
  *          "status":{
- *            "turn":"Player1",
- *            "status":"New"
+ *            "status":"New",
+ *            "nbPlayers": 0
  *          }
  *        }
  *      ]
@@ -305,7 +305,6 @@ $app->post('/games/{id}/join', function (Request $request, Response $response, a
  *          [[2, 6], false]
  *        ],
  *        "status":{
- *          "turn":"Player1",
  *          "status":"Finished",
  *          "winner":"Player1"
  *        }
@@ -324,7 +323,7 @@ $app->get('/games/{id}', function (Request $request, Response $response, array $
     try {
         $g = new Game($args['id']);
         $data = $g->getGame();
-        if ($data['status']['status'] !== 'Finished') throw new ForbiddenOperation('Game is not finished');
+        if ($data['status']['status'] !== 'Finished') throw new ForbiddenOperation('Game is not finished.');
         $status = 200;
         $payload = json_encode($data);
     } catch (\ClientException $th) {
