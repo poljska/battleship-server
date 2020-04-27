@@ -55,3 +55,10 @@ class ForbiddenOperation extends Exception {
         parent::__construct($msg);
     }
 }
+
+class InvalidAuth extends Exception {
+    function __construct($header = '') {
+        $msg = '[InvalidAuth]['.$this->getFile().':'.$this->getLine().'] -- '.$header;
+        parent::__construct($msg);
+    }
+}

@@ -69,7 +69,7 @@ $app->patch('/games/{id}/fire', function (Request $request, Response $response, 
  * @apiDescription
  * Will raise a `400 Bad Request` error if called with bad parameters.
  *
- * Will raise a `403 Forbidden` error if the request do not include a valid X-Auth header.
+ * Will raise a `401 Unauthorized` error if the request do not include a valid X-Auth header.
  *
  * Will raise a `403 Forbidden` error if the specified game is neither ongoing nor finished.
  *
@@ -106,7 +106,7 @@ $app->patch('/games/{id}/fire', function (Request $request, Response $response, 
 $app->get('/games/{id}/last-shot', function (Request $request, Response $response, array $args) {
     try {
         $g = new Game($args['id']);
-        if (!validAuth($request, $args['id'])) throw new ForbiddenOperation('Incorrect X-Auth HTTP header.');
+        validAuth($request, $args['id']);
         $gameData = $g->getGame();
         if ($gameData['status']['status'] === 'Finished')
             $player = $gameData['status']['winner'];
@@ -130,6 +130,9 @@ $app->get('/games/{id}/last-shot', function (Request $request, Response $respons
     } catch (\ClientException $th) {
         $status = 400;
         $payload = '';
+    } catch (\InvalidAuth $th) {
+        $status = 401;
+        $payload = '';
     } catch (\ForbiddenOperation $th) {
         $status = 403;
         $payload = '';
@@ -148,12 +151,13 @@ $app->get('/games/{id}/last-shot', function (Request $request, Response $respons
 });
 
 function validAuth(Request $request, $gameId) {
-    if (!$request->hasHeader('X-Auth')) return FALSE;  // X-Auth HTTP header is no set
-    $auth = base64_decode($request->getHeader('X-Auth')[0], TRUE);
-    if (!$auth) return FALSE;  // Incorrect base64
+    if (!$request->hasHeader('X-Auth')) throw new InvalidAuth();  // X-Auth HTTP header is not set
+    $header = $request->getHeader('X-Auth')[0];
+    $auth = base64_decode($header, TRUE);
+    if (!$auth) throw new InvalidAuth($header);  // Incorrect base64
     $auth = explode(':', $auth);  // [0] is the player's name ; [1] is the integrity hash
-    if ($auth[1] !== hash('sha3-512', $gameId.':'.$auth[0].':'.getenv('PRIVILEGED'))) return FALSE;
-        // Incorrect X-Auth HTTP header
-    if (!Game::isPlayer($auth[0])) return FALSE;
-    return TRUE;
+    if ($auth[1] !== hash('sha3-512', $gameId.':'.$auth[0].':'.getenv('PRIVILEGED')))
+        throw new InvalidAuth($header);  // Incorrect X-Auth HTTP header
+    if (!Game::isPlayer($auth[0])) throw new InvalidPlayer($auth[0]);
+    return $auth[0];
 }
