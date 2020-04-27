@@ -17,8 +17,8 @@ require_once 'app/classes/Exceptions.php';
  * @apiExample {curl} Example usage:
  *      curl -X GET <domain>/games
  *
- * @apiSuccess (Success response body) {Object[]} games List of all games
- * @apiSuccess (Success response body) {Object} games.game Game summary
+ * @apiSuccess (Success response body) {Object[]} Object[] List of all games
+ * @apiSuccess (Success response body) {Object} games.Object Game summary
  * @apiSuccess (Success response body) {String} games.game.game_id Game ID
  * @apiSuccess (Success response body) {Date='YYYY-mm-dd HH:ii:ss'}} games.game.timestamp Creation timestamp
  * @apiSuccess (Success response body) {Object} games.game.status Additional data
@@ -249,14 +249,13 @@ $app->post('/games/{id}/join', function (Request $request, Response $response, a
  *
  * @apiParam (URL parameters) {String} :id Game ID
  *
- * @apiSuccess (Success response body) {Object} game Game data
- * @apiSuccess (Success response body) {String} game.game_id Game ID
- * @apiSuccess (Success response body) {Date='YYYY-mm-dd HH:ii:ss'}} game.timestamp Creation timestamp
- * @apiSuccess (Success response body) {Object} game.player_1_ships Position of player 1's ships
- * @apiSuccess (Success response body) {Shot[]} game.player_1_shots Positions targeted by player 1
- * @apiSuccess (Success response body) {Object} game.player_2_ships Position of player 2's ships
- * @apiSuccess (Success response body) {Shot[]} game.player_2_shots Positions targeted by player 2
- * @apiSuccess (Success response body) {Object} game.status Additional data
+ * @apiSuccess (Success response body) {String} game_id Game ID
+ * @apiSuccess (Success response body) {Date='YYYY-mm-dd HH:ii:ss'}} timestamp Creation timestamp
+ * @apiSuccess (Success response body) {Object} player_1_ships Position of player 1's ships
+ * @apiSuccess (Success response body) {Shot[]} player_1_shots Positions targeted by player 1
+ * @apiSuccess (Success response body) {Object} player_2_ships Position of player 2's ships
+ * @apiSuccess (Success response body) {Shot[]} player_2_shots Positions targeted by player 2
+ * @apiSuccess (Success response body) {Object} status Additional data
  * @apiSuccessExample {json} Success response (example):
  *      HTTP/1.1 200 OK
  *      {

@@ -50,11 +50,6 @@ final class Game {
         return $this->game_id;
     }
 
-    public function getTurn() {
-        if (!$this->isInProgress()) throw new ForbiddenOperation('This game is not in progress.');
-        return $this->status['turn'];
-    }
-
     public function save() {
         $db = new Database();
         if ($this->id !== NULL) {  // Existing game
@@ -250,7 +245,7 @@ final class Game {
         $this->status['turn'] = ($this->status['turn'] === 'Player1') ? 'Player2' : 'Player1';
     }
 
-    private static function isPlayer($player) {
+    public static function isPlayer($player) {
         if (!is_string($player)) return FALSE;
         switch ($player) {
             case 'Player1':

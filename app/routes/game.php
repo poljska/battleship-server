@@ -61,8 +61,8 @@ $app->patch('/games/{id}/fire', function (Request $request, Response $response, 
 });
 
 /**
- * @api {get} /games/:id/last-fire Request last fire
- * @apiName LastFire
+ * @api {get} /games/:id/last-shot Request last shot
+ * @apiName LastShot
  * @apiGroup Game
  * @apiPermission player
  *
@@ -71,15 +71,14 @@ $app->patch('/games/{id}/fire', function (Request $request, Response $response, 
  *
  * Will raise a `403 Forbidden` error if the request do not include a valid X-Auth header.
  *
- * Will raise a `403 Forbidden` error if the specified game isn't ongoing.
+ * Will raise a `403 Forbidden` error if the specified game is neither ongoing nor finished.
  *
  * Will raise a `404 Not Found` error if the specified game does not exists.
  *
  * Will raise a `500 Internal Server Error` error if an internal error occurs.
  *
- *
  * @apiExample {curl} Example usage:
- *      curl -X GET <domain>/games/<:id>/last-fire -H 'X-Auth: <:token>'
+ *      curl -X GET <domain>/games/<:id>/last-shot -H 'X-Auth: <:token>'
  *
  * @apiHeader (Request headers) {String} X-Auth Authentication token
  * @apiHeaderExample {String} Headers (example):
@@ -87,35 +86,45 @@ $app->patch('/games/{id}/fire', function (Request $request, Response $response, 
  *
  * @apiParam (URL parameters) {String} :id Game ID
  *
- * @apiSuccess (Success response body) {String} player Last player's name
- * @apiSuccess (Success response body) {Shot} last_shot Last shot
+ * @apiSuccess (Success response body) {Object} last_shot Last shot informations
+ * @apiSuccess (Success response body) {String} last_shot.player Last player's name
+ * @apiSuccess (Success response body) {Shot} last_shot.shot Last shot
+ * @apiSuccess (Success response body) {Object} status Additional data
  * @apiSuccessExample {json} Success response (example):
  *      HTTP/1.1 200 OK
  *      {
- *        "player":"Player2",
- *        "last_shot":[[2, 6], false]
+ *        "last_shot": {
+ *          "player": "Player1",
+ *          "shot": [[5, 9], true]
+ *        },
+ *        "status": {
+ *          "status": "Finished",
+ *          "winner": "Player1"
+ *        }
  *      }
  */
-$app->get('/games/{id}/last-fire', function (Request $request, Response $response, array $args) {
+$app->get('/games/{id}/last-shot', function (Request $request, Response $response, array $args) {
     try {
         $g = new Game($args['id']);
-        if (!$g->isInProgress()) throw new ForbiddenOperation('This game is not in progress.');
         if (!validAuth($request, $args['id'])) throw new ForbiddenOperation('Incorrect X-Auth HTTP header.');
-        $data = $g->getGame();
-        switch ($g->getTurn()) {
-            case 'Player1':
-                $data = array(
-                    'player' => 'Player2',
-                    'last_shot' => end($data['player_2_shots'])
-                );
-                break;
-            case 'Player2':
-                $data = array(
-                    'player' => 'Player1',
-                    'last_shot' => end($data['player_1_shots'])
-                );
-                break;
-        }
+        $gameData = $g->getGame();
+        if ($gameData['status']['status'] === 'Finished')
+            $player = $gameData['status']['winner'];
+        elseif ($gameData['status']['status'] === 'InProgress')
+            $player = $gameData['status']['turn'] === 'Player1' ? 'Player2' : 'Player1';
+        else
+            throw new ForbiddenOperation('Game is neither ongoing nor finished.');
+        $shot = $player === 'Player1'
+                ? $gameData['player_1_shots']
+                : $gameData['player_2_shots'];
+        $shot = end($shot);
+        $data = array(
+            'last_shot' => array(
+                'player' => $player,
+                'shot' => $shot
+            ),
+            'status' => $gameData['status']
+        );
         $status = 200;
         $payload = json_encode($data);
     } catch (\ClientException $th) {
@@ -145,5 +154,6 @@ function validAuth(Request $request, $gameId) {
     $auth = explode(':', $auth);  // [0] is the player's name ; [1] is the integrity hash
     if ($auth[1] !== hash('sha3-512', $gameId.':'.$auth[0].':'.getenv('PRIVILEGED'))) return FALSE;
         // Incorrect X-Auth HTTP header
+    if (!Game::isPlayer($auth[0])) return FALSE;
     return TRUE;
 }
