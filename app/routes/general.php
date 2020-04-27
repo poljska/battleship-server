@@ -194,10 +194,12 @@ $app->delete('/games/{id}', function (Request $request, Response $response, arra
  *
  * @apiParam (URL parameters) {String} :id Game ID
  *
+ * @apiSuccess (Success response body) {String} player Player's name
  * @apiSuccess (Success response body) {String} X-Auth Authentication token
  * @apiSuccessExample {json} Success response (example):
  *      HTTP/1.1 200 OK
  *      {
+ *        "player":"Player2",
  *        "X-Auth":"UGxheWVyMTo1MzllOGNlOGJkNGZmZWM4MGI3MWEyZTZmNTI3N2QzZGQ0NWE2ZjU1MmI4NDRmMTYyNWNlNjI5MGQ2NWFhMTliZjIxZjc0ZWJiNGYyOTU0NTE1ODI4MjQyMWQ0YjIwMjc0MWViNzZhODY0YjRkOWQ0ZWJmNDYyMzcyZjFhMDM1YQ=="
  *      }
  */
@@ -207,7 +209,7 @@ $app->post('/games/{id}/join', function (Request $request, Response $response, a
         $player = $g->addNewPlayer();
         $g->save();
         $auth = base64_encode($player.':'.hash('sha3-512', $args['id'].':'.$player.':'.getenv('PRIVILEGED')));
-        $payload = json_encode(array('X-Auth' => $auth));
+        $payload = json_encode(array('player' => $player, 'X-Auth' => $auth));
         $status = 200;
     } catch (\ClientException $th) {
         $status = 400;
