@@ -16,13 +16,13 @@ require_once 'app/classes/Exceptions.php';
  * @apiPermission player
  *
  * @apiDescription
- * Will raise a `400 Bad Request` error if called with bad parameters.
+ * Will return a `400 Bad Request` error if called with bad parameters.
  *
- * Will raise a `401 Unauthorized` error if the request do not include a valid X-Auth header.
+ * Will return a `401 Unauthorized` error if the request do not include a valid X-Auth header.
  *
- * Will raise a `404 Not Found` error if the specified game does not exists.
+ * Will return a `404 Not Found` error if the specified game does not exists.
  *
- * Will raise a `500 Internal Server Error` error if an internal error occurs.
+ * Will return a `500 Internal Server Error` error if an internal error occurs.
  *
  * @apiExample {curl} Example usage:
  *      curl -X GET <domain>/games/<:id>/current -H 'X-Auth: <:token>'
@@ -142,15 +142,15 @@ $app->patch('/games/{id}/fire', function (Request $request, Response $response, 
  * @apiPermission player
  *
  * @apiDescription
- * Will raise a `400 Bad Request` error if called with bad parameters.
+ * Will return a `400 Bad Request` error if called with bad parameters.
  *
- * Will raise a `401 Unauthorized` error if the request do not include a valid X-Auth header.
+ * Will return a `401 Unauthorized` error if the request do not include a valid X-Auth header.
  *
- * Will raise a `403 Forbidden` error if the specified game is neither ongoing nor finished.
+ * Will return a `403 Forbidden` error if the specified game is neither ongoing nor finished.
  *
- * Will raise a `404 Not Found` error if the specified game does not exists.
+ * Will return a `404 Not Found` error if the specified game does not exists.
  *
- * Will raise a `500 Internal Server Error` error if an internal error occurs.
+ * Will return a `500 Internal Server Error` error if an internal error occurs.
  *
  * @apiExample {curl} Example usage:
  *      curl -X GET <domain>/games/<:id>/last-shot -H 'X-Auth: <:token>'

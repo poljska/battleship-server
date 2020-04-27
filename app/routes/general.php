@@ -12,7 +12,7 @@ require_once 'app/classes/Exceptions.php';
  * @apiPermission none
  *
  * @apiDescription
- * Will raise a `500 Internal Server Error` error if an internal error occurs.
+ * Will return a `500 Internal Server Error` error if an internal error occurs.
  *
  * @apiExample {curl} Example usage:
  *      curl -X GET <domain>/games
@@ -72,7 +72,7 @@ $app->get('/games', function (Request $request, Response $response, array $args)
  * @apiPermission none
  *
  * @apiDescription
- * Will raise a `500 Internal Server Error` error if an internal error occurs.
+ * Will return a `500 Internal Server Error` error if an internal error occurs.
  *
  * @apiExample {curl} Example usage:
  *      curl -X POST <domain>/games
@@ -109,7 +109,7 @@ $app->post('/games', function (Request $request, Response $response, array $args
  * @apiPermission none
  *
  * @apiDescription
- * Will raise a `500 Internal Server Error` error if an internal error occurs.
+ * Will return a `500 Internal Server Error` error if an internal error occurs.
  *
  * @apiExample {curl} Example usage:
  *      curl -X DELETE <domain>/games
@@ -140,11 +140,11 @@ $app->delete('/games', function (Request $request, Response $response, array $ar
  * @apiPermission none
  *
  * @apiDescription
- * Will raise a `400 Bad Request` error if called with bad parameters.
+ * Will return a `400 Bad Request` error if called with bad parameters.
  *
- * Will raise a `404 Not Found` error if the specified game does not exists.
+ * Will return a `404 Not Found` error if the specified game does not exists.
  *
- * Will raise a `500 Internal Server Error` error if an internal error occurs.
+ * Will return a `500 Internal Server Error` error if an internal error occurs.
  *
  * @apiExample {curl} Example usage:
  *      curl -X DELETE <domain>/games/<:id>
@@ -181,13 +181,13 @@ $app->delete('/games/{id}', function (Request $request, Response $response, arra
  * @apiPermission none
  *
  * @apiDescription
- * Will raise a `400 Bad Request` error if called with bad parameters.
+ * Will return a `400 Bad Request` error if called with bad parameters.
  *
- * Will raise a `403 Forbidden` error if the specified game isn't a new game.
+ * Will return a `403 Forbidden` error if the specified game isn't a new game.
  *
- * Will raise a `404 Not Found` error if the specified game does not exists.
+ * Will return a `404 Not Found` error if the specified game does not exists.
  *
- * Will raise a `500 Internal Server Error` error if an internal error occurs.
+ * Will return a `500 Internal Server Error` error if an internal error occurs.
  *
  * @apiExample {curl} Example usage:
  *      curl -X POST <domain>/games/<:id>/join
@@ -238,13 +238,13 @@ $app->post('/games/{id}/join', function (Request $request, Response $response, a
  * @apiPermission none
  *
  * @apiDescription
- * Will raise a `400 Bad Request` error if called with bad parameters.
+ * Will return a `400 Bad Request` error if called with bad parameters.
  *
- * Will raise a `403 Forbidden` error if the specified game isn't finished.
+ * Will return a `403 Forbidden` error if the specified game isn't finished.
  *
- * Will raise a `404 Not Found` error if the specified game does not exists.
+ * Will return a `404 Not Found` error if the specified game does not exists.
  *
- * Will raise a `500 Internal Server Error` error if an internal error occurs.
+ * Will return a `500 Internal Server Error` error if an internal error occurs.
  *
  * @apiExample {curl} Example usage:
  *      curl -X GET <domain>/games/<:id>
