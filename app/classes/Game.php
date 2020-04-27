@@ -134,25 +134,25 @@ final class Game {
         return $return;
     }
 
-    public function getOngoingGame($player) {
+    public function getPlayerView($player) {
         if (!Game::isPlayer($player)) throw new InvalidPlayer($player);
         $return = array();
         $return['game_id'] = $this->game_id;
         $return['timestamp'] = $this->timestamp;
+        if (!$this->isNew()) {
+            if ($player === 'Player1')
+                $return['player_1_ships'] = $this->player_1_ships;
+            else
+                $return['player_2_ships'] = $this->player_2_ships;
+            $return['player_1_shots'] = $this->player_1_shots;
+            $return['player_2_shots'] = $this->player_2_shots;
+        }
         $return['status'] = $this->status;
-        if ($player === 'Player1') {
-            $return['ships'] = $this->player_1_ships;
-            $return['shots'] = $this->player_1_shots;
-        }
-        else {
-            $return['ships'] = $this->player_2_ships;
-            $return['shots'] = $this->player_2_shots;
-        }
         return $return;
     }
 
     public function setShips($player, $ships) {
-        if ($this->status['status'] !== 'New') throw new ForbiddenOperation('This game is not new.');
+        if (!$this->isNew()) throw new ForbiddenOperation('This game is not new.');
         if (!Game::isPlayer($player)) throw new InvalidPlayer($player);
         if (!is_array($ships)) throw new InvalidArguments($ships);
         if (count($ships) !== 5) throw new InvalidArguments($ships);
@@ -209,7 +209,7 @@ final class Game {
     }
 
     public function addNewPlayer() {
-        if ($this->status['status'] !== 'New') throw new ForbiddenOperation('This game is not new.');
+        if (!$this->isNew()) throw new ForbiddenOperation('This game is not new.');
         switch ($this->status['nbPlayers']) {
             case 0:
                 $this->status['nbPlayers']++;
@@ -220,6 +220,10 @@ final class Game {
             default:
                 throw new ForbiddenOperation('This game is already full.');
         }
+    }
+
+    public function isNew() {
+        return $this->status['status'] === 'New';
     }
 
     public function isInProgress() {
