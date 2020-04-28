@@ -105,17 +105,72 @@ $app->get('/games/{id}/current', function (Request $request, Response $response,
  * @api {patch} /games/:id/set-ships Set ships positions
  * @apiName SetShips
  * @apiGroup Game
+ * @apiPermission player
+ *
+ * @apiDescription
+ * Will return a `400 Bad Request` error if called with bad parameters.
+ *
+ * Will return a `401 Unauthorized` error if the request do not include a valid X-Auth header.
+ *
+ * Will return a `403 Forbidden` error if the specified game is not new.
+ *
+ * Will return a `404 Not Found` error if the specified game does not exists.
+ *
+ * Will return a `500 Internal Server Error` error if an internal error occurs.
+ *
+ * @apiExample {curl} Example usage:
+ *      curl -X PATCH <domain>/games/<:id>/set-ships -H 'X-Auth: <:token>' -H 'Content-Type: application/json' -d '<:body>'
+ *
+ * @apiHeader (Request headers) {String} X-Auth Authentication token
+ * @apiHeader (Request headers) {String} Content-Type Body MIME type
+ * @apiHeaderExample {String} Headers (example):
+ *      X-Auth: UGxheWVyMTpiMWViYjc2ZjViNzRhYjI4NjFiNzAyNzIwNTFhZGRlMzdiMjAzM2EyOTQ0NjgzOGYxZWVmMDk0ZjhlNTY2Yzk1MGVjODYyOTJiOTI5MzI0OWE3OWIzOGExZWJhODNjNjk3YmY5ZDU3NGQ5NWI3YzBkMTZlNjUyMzllZjQ0NDZiOA==
+ *      Content-Type: application/json
+ *
+ * @apiParam (URL parameters) {String} :id Game ID
+ * @apiParam (Body parameters) {Object[]} :ships Ships positions
+ * @apiParam (Body parameters) {Position[]} :ships.carrier Carrier position
+ * @apiParam (Body parameters) {Position[]} :ships.destroyer Destroyer position
+ * @apiParam (Body parameters) {Position[]} :ships.submarine Submarine position
+ * @apiParam (Body parameters) {Position[]} :ships.battleship Battleship position
+ * @apiParam (Body parameters) {Position[]} :ships.patrol_boat Patrol boat position
+ * @apiParamExample {json} JSON body (example):
+ *      {
+ *        "carrier":[[2, 1], [3, 1], [4, 1], [5, 1], [6, 1]],
+ *        "destroyer":[[4, 7], [4, 5], [4, 6]],
+ *        "submarine":[[4, 9], [2, 9], [3, 9]],
+ *        "battleship":[[1, 5], [1, 6], [1, 7], [1, 8]],
+ *        "patrol_boat":[[6, 9], [5, 9]]
+ *      }
+ *
+ * @apiSuccessExample {json} Success response:
+ *      HTTP/1.1 200 OK
  */
 $app->patch('/games/{id}/set-ships', function (Request $request, Response $response, array $args) {
-    $gameId = $args['id'];
+    try {
+        $g = new Game($args['id']);
+        $player = validAuth($request, $args['id']);
+        $ships = $request->getParsedBody();
+        $g->setShips($player, $ships);
+        $g->save();
+        $status = 200;
+    } catch (\ClientException $th) {
+        $status = 400;
+    } catch (\InvalidAuth $th) {
+        $status = 401;
+    } catch (\ForbiddenOperation $th) {
+        $status = 403;
+    } catch (\InvalidGame $th) {
+        $status = 404;
+    } catch (\Throwable $th) {
+        $status = 500;
+    }
 
-    $data = array('endpoint' => 'SetShips', 'gameId' => $gameId);
-    $payload = json_encode($data);
-
+    $payload = '';
     $response->getBody()->write($payload);
     return $response
         ->withHeader('Content-Type', 'application/json')
-        ->withStatus(200);
+        ->withStatus($status);
 });
 
 /**
@@ -136,11 +191,13 @@ $app->patch('/games/{id}/set-ships', function (Request $request, Response $respo
  * Will return a `500 Internal Server Error` error if an internal error occurs.
  *
  * @apiExample {curl} Example usage:
- *      curl -X PATCH <domain>/games/<:id>/fire -H 'X-Auth: <:token>'
+ *      curl -X PATCH <domain>/games/<:id>/fire -H 'X-Auth: <:token>' -H 'Content-Type: application/json' -d '<:body>'
  *
  * @apiHeader (Request headers) {String} X-Auth Authentication token
+ * @apiHeader (Request headers) {String} Content-Type Body MIME type
  * @apiHeaderExample {String} Headers (example):
  *      X-Auth: UGxheWVyMTpiMWViYjc2ZjViNzRhYjI4NjFiNzAyNzIwNTFhZGRlMzdiMjAzM2EyOTQ0NjgzOGYxZWVmMDk0ZjhlNTY2Yzk1MGVjODYyOTJiOTI5MzI0OWE3OWIzOGExZWJhODNjNjk3YmY5ZDU3NGQ5NWI3YzBkMTZlNjUyMzllZjQ0NDZiOA==
+ *      Content-Type: application/json
  *
  * @apiParam (URL parameters) {String} :id Game ID
  * @apiParam (Body parameters) {Position} :position Targeted position
