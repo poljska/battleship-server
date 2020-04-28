@@ -10,9 +10,7 @@ require_once 'app/classes/Exceptions.php';
  * @apiName GetAllGames
  * @apiGroup General
  * @apiPermission none
- *
- * @apiDescription
- * Will return a `500 Internal Server Error` error if an internal error occurs.
+ * @apiVersion 1.0.0
  *
  * @apiExample {curl} Example usage:
  *      curl -X GET <domain>/games
@@ -70,9 +68,7 @@ $app->get('/games', function (Request $request, Response $response, array $args)
  * @apiName NewGame
  * @apiGroup General
  * @apiPermission none
- *
- * @apiDescription
- * Will return a `500 Internal Server Error` error if an internal error occurs.
+ * @apiVersion 1.0.0
  *
  * @apiExample {curl} Example usage:
  *      curl -X POST <domain>/games
@@ -107,9 +103,7 @@ $app->post('/games', function (Request $request, Response $response, array $args
  * @apiName DeleteAllGames
  * @apiGroup General
  * @apiPermission none
- *
- * @apiDescription
- * Will return a `500 Internal Server Error` error if an internal error occurs.
+ * @apiVersion 1.0.0
  *
  * @apiExample {curl} Example usage:
  *      curl -X DELETE <domain>/games
@@ -138,13 +132,7 @@ $app->delete('/games', function (Request $request, Response $response, array $ar
  * @apiName DeleteSingleGame
  * @apiGroup General
  * @apiPermission none
- *
- * @apiDescription
- * Will return a `400 Bad Request` error if called with bad parameters.
- *
- * Will return a `404 Not Found` error if the specified game does not exists.
- *
- * Will return a `500 Internal Server Error` error if an internal error occurs.
+ * @apiVersion 1.0.0
  *
  * @apiExample {curl} Example usage:
  *      curl -X DELETE <domain>/games/<:id>
@@ -179,15 +167,10 @@ $app->delete('/games/{id}', function (Request $request, Response $response, arra
  * @apiName JoinGame
  * @apiGroup General
  * @apiPermission none
+ * @apiVersion 1.0.0
  *
  * @apiDescription
- * Will return a `400 Bad Request` error if called with bad parameters.
- *
  * Will return a `403 Forbidden` error if the specified game isn't a new game.
- *
- * Will return a `404 Not Found` error if the specified game does not exists.
- *
- * Will return a `500 Internal Server Error` error if an internal error occurs.
  *
  * @apiExample {curl} Example usage:
  *      curl -X POST <domain>/games/<:id>/join
@@ -208,7 +191,7 @@ $app->post('/games/{id}/join', function (Request $request, Response $response, a
         $g = new Game($args['id']);
         $player = $g->addNewPlayer();
         $g->save();
-        $auth = base64_encode($player.':'.hash('sha3-512', $args['id'].':'.$player.':'.getenv('PRIVILEGED')));
+        $auth = base64_encode($player.':'.hash('sha3-512', $args['id'].':'.$player.':'.getenv('SERVER_KEY')));
         $payload = json_encode(array('player' => $player, 'X-Auth' => $auth));
         $status = 200;
     } catch (\ClientException $th) {
@@ -236,15 +219,10 @@ $app->post('/games/{id}/join', function (Request $request, Response $response, a
  * @apiName GetGame
  * @apiGroup General
  * @apiPermission none
+ * @apiVersion 1.0.0
  *
  * @apiDescription
- * Will return a `400 Bad Request` error if called with bad parameters.
- *
  * Will return a `403 Forbidden` error if the specified game isn't finished.
- *
- * Will return a `404 Not Found` error if the specified game does not exists.
- *
- * Will return a `500 Internal Server Error` error if an internal error occurs.
  *
  * @apiExample {curl} Example usage:
  *      curl -X GET <domain>/games/<:id>

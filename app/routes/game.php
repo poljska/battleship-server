@@ -6,7 +6,7 @@ require_once 'app/classes/Exceptions.php';
 
 /**
  * @apiDefine player Restricted to players
- * The client must be a player of the current game and send the X-Auth HTTP header accordingly.
+ * The client must be a player of the current game and send the `X-Auth` HTTP header accordingly.
  */
 
 /**
@@ -14,22 +14,12 @@ require_once 'app/classes/Exceptions.php';
  * @apiName GetCurrentGame
  * @apiGroup Game
  * @apiPermission player
- *
- * @apiDescription
- * Will return a `400 Bad Request` error if called with bad parameters.
- *
- * Will return a `401 Unauthorized` error if the request do not include a valid X-Auth header.
- *
- * Will return a `404 Not Found` error if the specified game does not exists.
- *
- * Will return a `500 Internal Server Error` error if an internal error occurs.
+ * @apiVersion 1.0.0
  *
  * @apiExample {curl} Example usage:
  *      curl -X GET <domain>/games/<:id>/current -H 'X-Auth: <:token>'
  *
  * @apiHeader (Request headers) {String} X-Auth Authentication token
- * @apiHeaderExample {String} Headers (example):
- *      X-Auth: UGxheWVyMTpiMWViYjc2ZjViNzRhYjI4NjFiNzAyNzIwNTFhZGRlMzdiMjAzM2EyOTQ0NjgzOGYxZWVmMDk0ZjhlNTY2Yzk1MGVjODYyOTJiOTI5MzI0OWE3OWIzOGExZWJhODNjNjk3YmY5ZDU3NGQ5NWI3YzBkMTZlNjUyMzllZjQ0NDZiOA==
  *
  * @apiParam (URL parameters) {String} :id Game ID
  *
@@ -106,26 +96,16 @@ $app->get('/games/{id}/current', function (Request $request, Response $response,
  * @apiName SetShips
  * @apiGroup Game
  * @apiPermission player
+ * @apiVersion 1.0.0
  *
  * @apiDescription
- * Will return a `400 Bad Request` error if called with bad parameters.
- *
- * Will return a `401 Unauthorized` error if the request do not include a valid X-Auth header.
- *
  * Will return a `403 Forbidden` error if the specified game is not new.
- *
- * Will return a `404 Not Found` error if the specified game does not exists.
- *
- * Will return a `500 Internal Server Error` error if an internal error occurs.
  *
  * @apiExample {curl} Example usage:
  *      curl -X PATCH <domain>/games/<:id>/set-ships -H 'X-Auth: <:token>' -H 'Content-Type: application/json' -d '<:body>'
  *
  * @apiHeader (Request headers) {String} X-Auth Authentication token
  * @apiHeader (Request headers) {String} Content-Type Body MIME type
- * @apiHeaderExample {String} Headers (example):
- *      X-Auth: UGxheWVyMTpiMWViYjc2ZjViNzRhYjI4NjFiNzAyNzIwNTFhZGRlMzdiMjAzM2EyOTQ0NjgzOGYxZWVmMDk0ZjhlNTY2Yzk1MGVjODYyOTJiOTI5MzI0OWE3OWIzOGExZWJhODNjNjk3YmY5ZDU3NGQ5NWI3YzBkMTZlNjUyMzllZjQ0NDZiOA==
- *      Content-Type: application/json
  *
  * @apiParam (URL parameters) {String} :id Game ID
  * @apiParam (Body parameters) {Object[]} :ships Ships positions
@@ -178,26 +158,16 @@ $app->patch('/games/{id}/set-ships', function (Request $request, Response $respo
  * @apiName Fire
  * @apiGroup Game
  * @apiPermission player
+ * @apiVersion 1.0.0
  *
  * @apiDescription
- * Will return a `400 Bad Request` error if called with bad parameters.
- *
- * Will return a `401 Unauthorized` error if the request do not include a valid X-Auth header.
- *
  * Will return a `403 Forbidden` error if the specified game isn't in progress.
- *
- * Will return a `404 Not Found` error if the specified game does not exists.
- *
- * Will return a `500 Internal Server Error` error if an internal error occurs.
  *
  * @apiExample {curl} Example usage:
  *      curl -X PATCH <domain>/games/<:id>/fire -H 'X-Auth: <:token>' -H 'Content-Type: application/json' -d '<:body>'
  *
  * @apiHeader (Request headers) {String} X-Auth Authentication token
  * @apiHeader (Request headers) {String} Content-Type Body MIME type
- * @apiHeaderExample {String} Headers (example):
- *      X-Auth: UGxheWVyMTpiMWViYjc2ZjViNzRhYjI4NjFiNzAyNzIwNTFhZGRlMzdiMjAzM2EyOTQ0NjgzOGYxZWVmMDk0ZjhlNTY2Yzk1MGVjODYyOTJiOTI5MzI0OWE3OWIzOGExZWJhODNjNjk3YmY5ZDU3NGQ5NWI3YzBkMTZlNjUyMzllZjQ0NDZiOA==
- *      Content-Type: application/json
  *
  * @apiParam (URL parameters) {String} :id Game ID
  * @apiParam (Body parameters) {Position} :position Targeted position
@@ -257,24 +227,15 @@ $app->patch('/games/{id}/fire', function (Request $request, Response $response, 
  * @apiName LastShot
  * @apiGroup Game
  * @apiPermission player
+ * @apiVersion 1.0.0
  *
  * @apiDescription
- * Will return a `400 Bad Request` error if called with bad parameters.
- *
- * Will return a `401 Unauthorized` error if the request do not include a valid X-Auth header.
- *
  * Will return a `403 Forbidden` error if the specified game is neither ongoing nor finished.
- *
- * Will return a `404 Not Found` error if the specified game does not exists.
- *
- * Will return a `500 Internal Server Error` error if an internal error occurs.
  *
  * @apiExample {curl} Example usage:
  *      curl -X GET <domain>/games/<:id>/last-shot -H 'X-Auth: <:token>'
  *
  * @apiHeader (Request headers) {String} X-Auth Authentication token
- * @apiHeaderExample {String} Headers (example):
- *      X-Auth: UGxheWVyMTpiMWViYjc2ZjViNzRhYjI4NjFiNzAyNzIwNTFhZGRlMzdiMjAzM2EyOTQ0NjgzOGYxZWVmMDk0ZjhlNTY2Yzk1MGVjODYyOTJiOTI5MzI0OWE3OWIzOGExZWJhODNjNjk3YmY5ZDU3NGQ5NWI3YzBkMTZlNjUyMzllZjQ0NDZiOA==
  *
  * @apiParam (URL parameters) {String} :id Game ID
  *
@@ -348,7 +309,7 @@ function validAuth(Request $request, $gameId) {
     $auth = base64_decode($header, TRUE);
     if (!$auth) throw new InvalidAuth($header);  // Incorrect base64
     $auth = explode(':', $auth);  // [0] is the player's name ; [1] is the integrity hash
-    if ($auth[1] !== hash('sha3-512', $gameId.':'.$auth[0].':'.getenv('PRIVILEGED')))
+    if ($auth[1] !== hash('sha3-512', $gameId.':'.$auth[0].':'.getenv('SERVER_KEY')))
         throw new InvalidAuth($header);  // Incorrect X-Auth HTTP header
     if (!Game::isPlayer($auth[0])) throw new InvalidPlayer($auth[0]);
     return $auth[0];
