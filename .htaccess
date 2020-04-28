@@ -1,0 +1,3 @@
+RewriteEngine On
+RewriteRule ^doc(/|$) - [L]
+RewriteRule ^ index.php [QSA,L]
