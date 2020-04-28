@@ -4,6 +4,7 @@ use Slim\Factory\AppFactory;
 require __DIR__ . '/vendor/autoload.php';
 
 $app = AppFactory::create();
+$app->addBodyParsingMiddleware();
 $app->addRoutingMiddleware();
 $app->addErrorMiddleware(TRUE, TRUE, TRUE);
 

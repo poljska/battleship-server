@@ -1,6 +1,4 @@
 <?php
-
-
 final class Database {
     private $handler;
 

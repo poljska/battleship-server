@@ -1,32 +1,48 @@
 <?php
 use Ramsey\Uuid\Uuid;
-require_once "Exceptions.php";
-
+use Ramsey\Uuid\Rfc4122\Validator as Rfc4122Validator;
+require_once 'Database.php';
+require_once 'Exceptions.php';
 
 final class Game {
     private $id;              // Internal ID
     private $game_id;         // Public game ID
     private $timestamp;       // Game creation timestamp
-    private $player_1_ships;  // Positions of all player 1 ships
+    private $player_1_ships;  // Position of player 1's ships
     private $player_1_shots;  // Positions targeted by player 1
-    private $player_2_ships;  // Positions of all player 2 ships
+    private $player_2_ships;  // Position of player 2's ships
     private $player_2_shots;  // Positions targeted by player 2
-    private $status;          // Additional data (status / turn / number of players / winner)
+    private $status;          // Additional informations (status / turn / number of players / winner)
 
     function __construct($game_id = NULL) {
-        if ($game_id) {  // Existing game
-            // TODO
+        if ($game_id !== NULL) {  // Existing game
+            if (!is_string($game_id)) throw new InvalidArguments($game_id);
+            $v = new Rfc4122Validator();
+            if (!$v->validate($game_id)) throw new InvalidArguments($game_id);
+            $db = new Database();
+            $sql = 'SELECT * FROM games WHERE game_id=?';
+            $args = array($game_id);
+            $results = $db->execute($sql, $args)[0];
+            if (!$results) throw new InvalidGame($game_id);
+            $this->id = $results['id'];
+            $this->game_id = $results['game_id'];
+            $this->timestamp = $results['creation_ts'];
+            $this->player_1_ships = json_decode($results['player_1_ships'], TRUE);
+            $this->player_1_shots = json_decode($results['player_1_shots']);
+            $this->player_2_ships = json_decode($results['player_2_ships'], TRUE);
+            $this->player_2_shots = json_decode($results['player_2_shots']);
+            $this->status = json_decode($results['status'], TRUE);
         } else {  // New game
+            $this->id = NULL;
             $this->game_id = Uuid::uuid4()->toString();
-            $this->timestamp = time();
+            $this->timestamp = date('Y-m-d H:i:s');
             $this->player_1_ships = array();
             $this->player_1_shots = array();
             $this->player_2_ships = array();
             $this->player_2_shots = array();
             $this->status = array();
             $this->status['status'] = 'New';
-            $this->status['turn'] = 'Player1';
-            $this->status['nbPlayers'] = '0';
+            $this->status['nbPlayers'] = 0;
         }
     }
 
@@ -34,16 +50,68 @@ final class Game {
         return $this->game_id;
     }
 
-    public function getTurn() {
-        return $this->status['turn'];
-    }
-
     public function save() {
-        // TODO
+        $db = new Database();
+        if ($this->id !== NULL) {  // Existing game
+            $sql = 'UPDATE games
+            SET player_1_ships = ?,
+                player_1_shots = ?,
+                player_2_ships = ?,
+                player_2_shots = ?,
+                status = ?
+            WHERE id = ?';
+            $args = array(
+                json_encode($this->player_1_ships, JSON_FORCE_OBJECT),
+                json_encode($this->player_1_shots),
+                json_encode($this->player_2_ships, JSON_FORCE_OBJECT),
+                json_encode($this->player_2_shots),
+                json_encode($this->status, JSON_FORCE_OBJECT),
+                $this->id
+            );
+            $db->execute($sql, $args);
+        }
+        else {  // New game
+            $sql = 'INSERT INTO games (
+                game_id,
+                creation_ts,
+                player_1_ships,
+                player_1_shots,
+                player_2_ships,
+                player_2_shots,
+                status
+              )
+            VALUES
+              (
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?
+              )';
+            $args = array(
+                $this->game_id,
+                $this->timestamp,
+                json_encode($this->player_1_ships, JSON_FORCE_OBJECT),
+                json_encode($this->player_1_shots),
+                json_encode($this->player_2_ships, JSON_FORCE_OBJECT),
+                json_encode($this->player_2_shots),
+                json_encode($this->status, JSON_FORCE_OBJECT)
+            );
+            $id = $db->execute($sql, $args);
+            $this->id = $id;
+        }
     }
 
     public function delete() {
-        // TODO
+        if ($this->id !== NULL) {  // Existing game
+            $db = new Database();
+            $sql = 'DELETE FROM games WHERE id=?';
+            $args = array($this->id);
+            $db->execute($sql, $args);
+            $this->id = NULL;
+        }
     }
 
     public function getGame() {
@@ -66,24 +134,25 @@ final class Game {
         return $return;
     }
 
-    public function getOngoingGame($player) {
+    public function getPlayerView($player) {
         if (!Game::isPlayer($player)) throw new InvalidPlayer($player);
         $return = array();
         $return['game_id'] = $this->game_id;
         $return['timestamp'] = $this->timestamp;
+        if (!$this->isNew()) {
+            if ($player === 'Player1')
+                $return['player_1_ships'] = $this->player_1_ships;
+            else
+                $return['player_2_ships'] = $this->player_2_ships;
+            $return['player_1_shots'] = $this->player_1_shots;
+            $return['player_2_shots'] = $this->player_2_shots;
+        }
         $return['status'] = $this->status;
-        if ($player === 'Player1') {
-            $return['ships'] = $this->player_1_ships;
-            $return['shots'] = $this->player_1_shots;
-        }
-        else {
-            $return['ships'] = $this->player_2_ships;
-            $return['shots'] = $this->player_2_shots;
-        }
         return $return;
     }
 
     public function setShips($player, $ships) {
+        if (!$this->isNew()) throw new ForbiddenOperation('This game is not new.');
         if (!Game::isPlayer($player)) throw new InvalidPlayer($player);
         if (!is_array($ships)) throw new InvalidArguments($ships);
         if (count($ships) !== 5) throw new InvalidArguments($ships);
@@ -98,21 +167,23 @@ final class Game {
         }
         if (Game::overlap($ships)) throw new InvalidArguments($ships);
         if ($player === 'Player1') {
-            if ($this->player_1_ships !== array()) throw new InvalidOperation('Position of ships can only be set once.');
+            if ($this->player_1_ships !== array()) throw new ForbiddenOperation('Position of ships can only be set once.');
             $this->player_1_ships = $ships;
         }
         else {
-            if ($this->player_2_ships !== array()) throw new InvalidOperation('Position of ships can only be set once.');
+            if ($this->player_2_ships !== array()) throw new ForbiddenOperation('Position of ships can only be set once.');
             $this->player_2_ships = $ships;
         }
         if ($this->player_1_ships !== array() && $this->player_2_ships !== array()) {
             $this->status['status'] = 'InProgress';
+            $this->status['turn'] = 'Player1';
+            unset($this->status['nbPlayers']);
         }
         return TRUE;
     }
 
     public function fire($player, $position) {
-        if (!$this->inProgress()) throw new InvalidOperation('This game is not in progress.');
+        if (!$this->isInProgress()) throw new ForbiddenOperation('This game is not in progress.');
         if (!Game::isPlayer($player)) throw new InvalidPlayer($player);
         if (!$this->isTurn($player)) throw new InvalidTurn($player);
         if (!Game::isPosition($position)) throw new InvalidPosition($position);
@@ -129,15 +200,38 @@ final class Game {
         if ($victory) {
             $this->status['status'] = 'Finished';
             $this->status['winner'] = $player;
+            unset($this->status['turn']);
         }
         else {
             $this->nextTurn();
         }
-        return $hit;
+        return array($position, $hit);
     }
 
-    private function inProgress() {
+    public function addNewPlayer() {
+        if (!$this->isNew()) throw new ForbiddenOperation('This game is not new.');
+        switch ($this->status['nbPlayers']) {
+            case 0:
+                $this->status['nbPlayers']++;
+                return "Player1";
+            case 1:
+                $this->status['nbPlayers']++;
+                return "Player2";
+            default:
+                throw new ForbiddenOperation('This game is already full.');
+        }
+    }
+
+    public function isNew() {
+        return $this->status['status'] === 'New';
+    }
+
+    public function isInProgress() {
         return $this->status['status'] === 'InProgress';
+    }
+
+    public function isFinished() {
+        return $this->status['status'] === 'Finished';
     }
 
     private function isTurn($player) {
@@ -155,7 +249,7 @@ final class Game {
         $this->status['turn'] = ($this->status['turn'] === 'Player1') ? 'Player2' : 'Player1';
     }
 
-    private static function isPlayer($player) {
+    public static function isPlayer($player) {
         if (!is_string($player)) return FALSE;
         switch ($player) {
             case 'Player1':
