@@ -158,10 +158,12 @@ $app->patch('/games/{id}/set-ships', function (Request $request, Response $respo
  * @apiName Fire
  * @apiGroup Game
  * @apiPermission player
- * @apiVersion 1.0.0
+ * @apiVersion 1.0.1
  *
  * @apiDescription
  * Will return a `403 Forbidden` error if the specified game isn't in progress.
+ *
+ * Will return a `403 Forbidden` error if it's not the player's turn.
  *
  * @apiExample {curl} Example usage:
  *      curl -X PATCH <domain>/games/<:id>/fire -H 'X-Auth: <:token>' -H 'Content-Type: application/json' -d '<:body>'

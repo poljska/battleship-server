@@ -185,7 +185,7 @@ final class Game {
     public function fire($player, $position) {
         if (!$this->isInProgress()) throw new ForbiddenOperation('This game is not in progress.');
         if (!Game::isPlayer($player)) throw new InvalidPlayer($player);
-        if (!$this->isTurn($player)) throw new InvalidTurn($player);
+        if (!$this->isTurn($player)) throw new ForbiddenOperation('Not your turn '.$player);
         if (!Game::isPosition($position)) throw new InvalidPosition($position);
         if ($player === 'Player1') {
             $hit = Game::inArrayDepth2($position, $this->player_2_ships);

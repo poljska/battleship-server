@@ -27,13 +27,6 @@ class InvalidPosition extends ClientException {
     }
 }
 
-class InvalidTurn extends ClientException {
-    function __construct($player) {
-        $msg = '[InvalidTurn]['.$this->getFile().':'.$this->getLine().'] -- '.$player;
-        parent::__construct($msg);
-    }
-}
-
 class DatabaseException extends Exception {
     function __construct($query, $args, $e = NULL) {
         $details = array($query, $args);
