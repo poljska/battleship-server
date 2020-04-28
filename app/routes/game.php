@@ -39,7 +39,7 @@ require_once 'app/classes/Exceptions.php';
  * @apiSuccess (Success response body) {Shot[]} [player_1_shots] Positions targeted by player 1
  * @apiSuccess (Success response body) {Shot[]} [player_2_shots] Positions targeted by player 2
  * @apiSuccess (Success response body) {Object} status Additional data
- * @apiSuccessExample {json} Success response [new game] (example):
+ * @apiSuccessExample {text} Success response [new game] (example):
  *      HTTP/1.1 200 OK
  *      {
  *        "game_id":"76f70f6c-884b-4747-a54e-d3b2f887c114",
@@ -49,7 +49,7 @@ require_once 'app/classes/Exceptions.php';
  *          "nbPlayers":2
  *        }
  *      }
- * @apiSuccessExample {json} Success response [ongoing game] (example):
+ * @apiSuccessExample {text} Success response [ongoing game] (example):
  *      HTTP/1.1 200 OK
  *      {
  *        "game_id":"e9d448cf-cfc0-4562-a646-9eb6aead8747",
@@ -134,7 +134,7 @@ $app->get('/games/{id}/current', function (Request $request, Response $response,
  * @apiParam (Body parameters) {Position[]} :ships.submarine Submarine position
  * @apiParam (Body parameters) {Position[]} :ships.battleship Battleship position
  * @apiParam (Body parameters) {Position[]} :ships.patrol_boat Patrol boat position
- * @apiParamExample {json} JSON body (example):
+ * @apiParamExample {text} JSON body (example):
  *      {
  *        "carrier":[[2, 1], [3, 1], [4, 1], [5, 1], [6, 1]],
  *        "destroyer":[[4, 7], [4, 5], [4, 6]],
@@ -143,7 +143,7 @@ $app->get('/games/{id}/current', function (Request $request, Response $response,
  *        "patrol_boat":[[6, 9], [5, 9]]
  *      }
  *
- * @apiSuccessExample {json} Success response:
+ * @apiSuccessExample {text} Success response:
  *      HTTP/1.1 200 OK
  */
 $app->patch('/games/{id}/set-ships', function (Request $request, Response $response, array $args) {
@@ -201,12 +201,12 @@ $app->patch('/games/{id}/set-ships', function (Request $request, Response $respo
  *
  * @apiParam (URL parameters) {String} :id Game ID
  * @apiParam (Body parameters) {Position} :position Targeted position
- * @apiParamExample {json} JSON body (example):
+ * @apiParamExample {text} JSON body (example):
  *      [1, 9]
  *
  * @apiSuccess (Success response body) {Shot} shot Shot result
  * @apiSuccess (Success response body) {Object} status Additional data
- * @apiSuccessExample {json} Success response (example):
+ * @apiSuccessExample {text} Success response (example):
  *      HTTP/1.1 200 OK
  *      {
  *        "shot": [[1, 9], false],
@@ -282,7 +282,7 @@ $app->patch('/games/{id}/fire', function (Request $request, Response $response, 
  * @apiSuccess (Success response body) {String} last_shot.player Last player's name
  * @apiSuccess (Success response body) {Shot} last_shot.shot Last shot
  * @apiSuccess (Success response body) {Object} status Additional data
- * @apiSuccessExample {json} Success response (example):
+ * @apiSuccessExample {text} Success response (example):
  *      HTTP/1.1 200 OK
  *      {
  *        "last_shot": {

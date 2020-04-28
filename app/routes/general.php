@@ -22,7 +22,7 @@ require_once 'app/classes/Exceptions.php';
  * @apiSuccess (Success response body) {String} games.game.game_id Game ID
  * @apiSuccess (Success response body) {Date='YYYY-mm-dd HH:ii:ss'}} games.game.timestamp Creation timestamp
  * @apiSuccess (Success response body) {Object} games.game.status Additional data
- * @apiSuccessExample {json} Success response (example):
+ * @apiSuccessExample {text} Success response (example):
  *      HTTP/1.1 200 OK
  *      [
  *        {
@@ -78,7 +78,7 @@ $app->get('/games', function (Request $request, Response $response, array $args)
  *      curl -X POST <domain>/games
  *
  * @apiSuccess (Success response body) {String} game_id Game ID
- * @apiSuccessExample {json} Success response (example):
+ * @apiSuccessExample {text} Success response (example):
  *      HTTP/1.1 201 Created
  *      {
  *        "game_id":"9543fa9c-14a1-4494-83ac-d81196415c6d"
@@ -114,7 +114,7 @@ $app->post('/games', function (Request $request, Response $response, array $args
  * @apiExample {curl} Example usage:
  *      curl -X DELETE <domain>/games
  *
- * @apiSuccessExample {json} Success response:
+ * @apiSuccessExample {text} Success response:
  *      HTTP/1.1 200 OK
  */
 $app->delete('/games', function (Request $request, Response $response, array $args) {
@@ -151,7 +151,7 @@ $app->delete('/games', function (Request $request, Response $response, array $ar
  *
  * @apiParam (URL parameters) {String} :id Game ID
  *
- * @apiSuccessExample {json} Success response:
+ * @apiSuccessExample {text} Success response:
  *      HTTP/1.1 200 OK
  */
 $app->delete('/games/{id}', function (Request $request, Response $response, array $args) {
@@ -196,7 +196,7 @@ $app->delete('/games/{id}', function (Request $request, Response $response, arra
  *
  * @apiSuccess (Success response body) {String} player Player's name
  * @apiSuccess (Success response body) {String} X-Auth Authentication token
- * @apiSuccessExample {json} Success response (example):
+ * @apiSuccessExample {text} Success response (example):
  *      HTTP/1.1 200 OK
  *      {
  *        "player":"Player2",
@@ -258,7 +258,7 @@ $app->post('/games/{id}/join', function (Request $request, Response $response, a
  * @apiSuccess (Success response body) {Object} player_2_ships Position of player 2's ships
  * @apiSuccess (Success response body) {Shot[]} player_2_shots Positions targeted by player 2
  * @apiSuccess (Success response body) {Object} status Additional data
- * @apiSuccessExample {json} Success response (example):
+ * @apiSuccessExample {text} Success response (example):
  *      HTTP/1.1 200 OK
  *      {
  *        "game_id":"f38ab6af-3412-4c4d-ad2a-3c8941ebeb7d",
