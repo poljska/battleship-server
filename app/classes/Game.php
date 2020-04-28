@@ -205,7 +205,7 @@ final class Game {
         else {
             $this->nextTurn();
         }
-        return $hit;
+        return array($position, $hit);
     }
 
     public function addNewPlayer() {

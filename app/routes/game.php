@@ -122,17 +122,77 @@ $app->patch('/games/{id}/set-ships', function (Request $request, Response $respo
  * @api {patch} /games/:id/fire Fire at opponent
  * @apiName Fire
  * @apiGroup Game
+ * @apiPermission player
+ *
+ * @apiDescription
+ * Will return a `400 Bad Request` error if called with bad parameters.
+ *
+ * Will return a `401 Unauthorized` error if the request do not include a valid X-Auth header.
+ *
+ * Will return a `403 Forbidden` error if the specified game isn't in progress.
+ *
+ * Will return a `404 Not Found` error if the specified game does not exists.
+ *
+ * Will return a `500 Internal Server Error` error if an internal error occurs.
+ *
+ * @apiExample {curl} Example usage:
+ *      curl -X PATCH <domain>/games/<:id>/fire -H 'X-Auth: <:token>'
+ *
+ * @apiHeader (Request headers) {String} X-Auth Authentication token
+ * @apiHeaderExample {String} Headers (example):
+ *      X-Auth: UGxheWVyMTpiMWViYjc2ZjViNzRhYjI4NjFiNzAyNzIwNTFhZGRlMzdiMjAzM2EyOTQ0NjgzOGYxZWVmMDk0ZjhlNTY2Yzk1MGVjODYyOTJiOTI5MzI0OWE3OWIzOGExZWJhODNjNjk3YmY5ZDU3NGQ5NWI3YzBkMTZlNjUyMzllZjQ0NDZiOA==
+ *
+ * @apiParam (URL parameters) {String} :id Game ID
+ * @apiParam (Body parameters) {Position} :position Targeted position
+ * @apiParamExample {json} JSON body (example):
+ *      [1, 9]
+ *
+ * @apiSuccess (Success response body) {Shot} shot Shot result
+ * @apiSuccess (Success response body) {Object} status Additional data
+ * @apiSuccessExample {json} Success response (example):
+ *      HTTP/1.1 200 OK
+ *      {
+ *        "shot": [[1, 9], false],
+ *        "status": {
+ *          "turn": "Player2",
+ *          "status": "InProgress"
+ *        }
+ *      }
+ *
  */
 $app->patch('/games/{id}/fire', function (Request $request, Response $response, array $args) {
-    $gameId = $args['id'];
-
-    $data = array('endpoint' => 'Fire', 'gameId' => $gameId);
-    $payload = json_encode($data);
+    try {
+        $g = new Game($args['id']);
+        $player = validAuth($request, $args['id']);
+        $position = $request->getParsedBody();
+        $data = array(
+            'shot' => $g->fire($player, $position),
+            'status' => $g->getGame()['status']
+        );
+        $g->save();
+        $status = 200;
+        $payload = json_encode($data);
+    } catch (\ClientException $th) {
+        $status = 400;
+        $payload = '';
+    } catch (\InvalidAuth $th) {
+        $status = 401;
+        $payload = '';
+    } catch (\ForbiddenOperation $th) {
+        $status = 403;
+        $payload = '';
+    } catch (\InvalidGame $th) {
+        $status = 404;
+        $payload = '';
+    } catch (\Throwable $th) {
+        $status = 500;
+        $payload = '';
+    }
 
     $response->getBody()->write($payload);
     return $response
         ->withHeader('Content-Type', 'application/json')
-        ->withStatus(200);
+        ->withStatus($status);
 });
 
 /**
