@@ -15,7 +15,7 @@ This type is an array of exactly two (2) numbers between 1 and 10 inclusive. The
 
 Result of a shot on a given position.
 
-This type is an array containing a `position` and a boolean indicating its result (if a ship was successfully hit or not).
+This type is an array containing a `position` and a boolean indicating the shot's result (if a ship was successfully hit or not).
 
 ```json
 # Shot example
