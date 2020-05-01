@@ -213,10 +213,10 @@ final class Game {
         switch ($this->status['nbPlayers']) {
             case 0:
                 $this->status['nbPlayers']++;
-                return "Player1";
+                return 'Player1';
             case 1:
                 $this->status['nbPlayers']++;
-                return "Player2";
+                return 'Player2';
             default:
                 throw new ForbiddenOperation('This game is already full.');
         }

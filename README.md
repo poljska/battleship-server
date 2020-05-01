@@ -4,8 +4,17 @@ PHP REST API for the battleship game.
 
 ## Table of Contents
 
+1. [Install for developpement](#install-for-developpement)
 1. [Database schema](#database-schema)
 1. [Generate documentation](#generate-documentation)
+
+## Install for developpement
+
+```sh
+# In project root directory
+composer install
+npm install       # Optional, only if you wish to be able to generate the documentation
+```
 
 ## Database schema
 
@@ -32,6 +41,6 @@ CREATE TABLE Games (
 To generate the documentation from source with [apiDoc](https://apidocjs.com/), use the following command. Generated files will be placed in the `/doc` directory.
 
 ```sh
-# In root directory
-apidoc -i ./ -e doc/
+# In project root directory
+npm run doc
 ```

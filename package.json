@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "build": "npm run doc",
+    "doc": "apidoc -i ./ -e doc/ -e node_modules/ -e vendor/"
+  },
+  "dependencies": {
+    "apidoc": "^0.22.0"
+  }
+}
