@@ -1,6 +1,6 @@
 {
     "name": "Battleship Server",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "description": "Battleship REST API documentation",
     "title": "Battleship REST API",
     "url" : "https://battleship-server-php.herokuapp.com",
